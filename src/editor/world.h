@@ -217,6 +217,9 @@ public:
     QSize size() const { return QSize(mWidth, mHeight); }
     QRect bounds() const { return QRect(0, 0, mWidth, mHeight); }
 
+    int cellSize() const { return mCellSize; }
+    void setCellSize(int size) { mCellSize = size; }
+
     void swapCells(QVector<WorldCell *> &cells);
     void setSize(const QSize &newSize);
 
@@ -315,6 +318,7 @@ public:
 private:
     int mWidth;
     int mHeight;
+    int mCellSize = 300;
     QVector<WorldCell*> mCells;
     ObjectTypeList mObjectTypes;
     ObjectType *mNullObjectType;

@@ -92,6 +92,11 @@ private:
                 atts.value(QLatin1String("height")).toString().toInt();
 
         mWorld = new World(width, height);
+        if (atts.hasAttribute(QLatin1String("cellSize"))) {
+            int cs = atts.value(QLatin1String("cellSize")).toString().toInt();
+            if (cs > 0)
+                mWorld->setCellSize(cs);
+        }
 
         while (xml.readNextStartElement()) {
             if (xml.name() == QLatin1String("propertyenum"))

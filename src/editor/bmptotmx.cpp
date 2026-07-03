@@ -278,8 +278,9 @@ BMPToTMXImages *BMPToTMX::getImages(const QString &path, const QPoint &origin,
     images->mBmp = image;
     images->mBmpVeg = imageVeg;
     images->mPath = info.canonicalFilePath();
-    images->mBounds = QRect(origin, QSize(image.width() / 300,
-                                          image.height() / 300));
+    const int cs = mWorldDoc->world()->cellSize();
+    images->mBounds = QRect(origin, QSize(image.width() / cs,
+                                          image.height() / cs));
     return images;
 }
 
@@ -467,8 +468,9 @@ QImage BMPToTMX::loadImage(const QString &path, const QString &suffix,
         return QImage();
     }
 
-    if (image.width() % 300 || image.height() % 300) {
-        mError = tr("The image%1 size isn't divisible by 300.").arg(suffix);
+    const int cs = mWorldDoc->world()->cellSize();
+    if (image.width() % cs || image.height() % cs) {
+        mError = tr("The image%1 size isn't divisible by %2.").arg(suffix).arg(cs);
         return QImage();
     }
 
@@ -640,7 +642,8 @@ void BMPToTMX::AddRule(BmpRule *rule)
 
 bool BMPToTMX::WriteMap(WorldCell *cell, int bmpIndex)
 {
-    Map map(Map::LevelIsometric, 300, 300, 64, 32);
+    const int cs = mWorldDoc->world()->cellSize();
+    Map map(Map::LevelIsometric, cs, cs, 64, 32);
     foreach (Tiled::Tileset *ts, TileMetaInfoMgr::instance()->tilesets())
         map.addTileset(ts);
 
@@ -673,10 +676,10 @@ bool BMPToTMX::WriteMap(WorldCell *cell, int bmpIndex)
         BMPToTMXImages *images = mImages[bmpIndex];
         QImage bmp = images->mBmp;
         QImage bmpVeg = images->mBmpVeg;
-        int ix = (cell->x() - images->mBounds.x()) * 300;
-        int iy = (cell->y() - images->mBounds.y()) * 300;
-        rbmpMain.rimage() = bmp.copy(ix, iy, 300, 300).convertToFormat(QImage::Format_ARGB32);
-        rbmpVeg.rimage() = bmpVeg.copy(ix, iy, 300, 300).convertToFormat(QImage::Format_ARGB32);
+        int ix = (cell->x() - images->mBounds.x()) * cs;
+        int iy = (cell->y() - images->mBounds.y()) * cs;
+        rbmpMain.rimage() = bmp.copy(ix, iy, cs, cs).convertToFormat(QImage::Format_ARGB32);
+        rbmpVeg.rimage() = bmpVeg.copy(ix, iy, cs, cs).convertToFormat(QImage::Format_ARGB32);
 
         if (settings.warnUnknownColors) {
             const QRgb black = qRgb(0, 0, 0);
@@ -787,13 +790,14 @@ bool BMPToTMX::UpdateMap(WorldCell *cell, int bmpIndex)
     QImage bmp = images->mBmp;
     QImage bmpVeg = images->mBmpVeg;
 
-    int ix = (cell->x() - images->mBounds.x()) * 300;
-    int iy = (cell->y() - images->mBounds.y()) * 300;
+    const int cs = mWorldDoc->world()->cellSize();
+    int ix = (cell->x() - images->mBounds.x()) * cs;
+    int iy = (cell->y() - images->mBounds.y()) * cs;
     QPainter painter(&rbmpMain.rimage());
-    painter.drawImage(0, 0, bmp, ix, iy, 300, 300);
+    painter.drawImage(0, 0, bmp, ix, iy, cs, cs);
     painter.end();
     QPainter painter2(&rbmpVeg.rimage());
-    painter2.drawImage(0, 0, bmpVeg, ix, iy, 300, 300);
+    painter2.drawImage(0, 0, bmpVeg, ix, iy, cs, cs);
     painter2.end();
 
     MapWriter writer;

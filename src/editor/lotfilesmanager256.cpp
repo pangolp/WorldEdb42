@@ -160,7 +160,10 @@ bool LotFilesManager256::generateWorld(WorldDocument *worldDoc, GenerateMode mod
     mWorldDoc = worldDoc;
     const GenerateLotsSettings &lotSettings = mWorldDoc->world()->getGenerateLotsSettings();
 
-    mCellBounds256 = CombinedCellMaps::toCellRect256(QRect(lotSettings.worldOrigin, QSize(mWorldDoc->world()->size())));
+    if (mWorldDoc->world()->cellSize() == CELL_SIZE_256)
+        mCellBounds256 = QRect(lotSettings.worldOrigin, QSize(mWorldDoc->world()->size()));
+    else
+        mCellBounds256 = CombinedCellMaps::toCellRect256(QRect(lotSettings.worldOrigin, QSize(mWorldDoc->world()->size())));
 
     mDialog = new ExportLotsProgressDialog(MainWindow::instance());
     ExportLotsProgressDialog& progress = *mDialog;
@@ -229,6 +232,7 @@ bool LotFilesManager256::generateWorld(WorldDocument *worldDoc, GenerateMode mod
 
     startThreads(lotSettings.numberOfThreads);
 
+    const bool isNative256 = (world->cellSize() == CELL_SIZE_256);
     if (mode == GenerateSelected) {
         for (WorldCell *cell : worldDoc->selectedCells()) {
             if (cell->mapFilePath().isEmpty()) {
@@ -236,7 +240,9 @@ bool LotFilesManager256::generateWorld(WorldDocument *worldDoc, GenerateMode mod
             }
             int cell300X = lotSettings.worldOrigin.x() + cell->x();
             int cell300Y = lotSettings.worldOrigin.y() + cell->y();
-            QRect cellBounds256 = CombinedCellMaps::toCellRect256(QRect(cell300X, cell300Y, 1, 1));
+            QRect cellBounds256 = isNative256
+                ? QRect(cell300X, cell300Y, 1, 1)
+                : CombinedCellMaps::toCellRect256(QRect(cell300X, cell300Y, 1, 1));
             for (int cell256Y = cellBounds256.top(); cell256Y <= cellBounds256.bottom(); cell256Y++) {
                 for (int cell256X = cellBounds256.left(); cell256X <= cellBounds256.right(); cell256X++) {
                     mProgressDialog->setCellStatus(cell256X - mCellBounds256.left(), cell256Y - mCellBounds256.top(), ExportLotsProgressDialog::CellStatus::Pending);
@@ -261,7 +267,9 @@ bool LotFilesManager256::generateWorld(WorldDocument *worldDoc, GenerateMode mod
                 if (cell->mapFilePath().isEmpty()) {
                     continue;
                 }
-                QRect cellBounds256 = CombinedCellMaps::toCellRect256(QRect(lotSettings.worldOrigin.x() + x, lotSettings.worldOrigin.y() + y, 1, 1));
+                QRect cellBounds256 = isNative256
+                    ? QRect(lotSettings.worldOrigin.x() + x, lotSettings.worldOrigin.y() + y, 1, 1)
+                    : CombinedCellMaps::toCellRect256(QRect(lotSettings.worldOrigin.x() + x, lotSettings.worldOrigin.y() + y, 1, 1));
                 for (int cell256Y = cellBounds256.top(); cell256Y <= cellBounds256.bottom(); cell256Y++) {
                     for (int cell256X = cellBounds256.left(); cell256X <= cellBounds256.right(); cell256X++) {
                         mProgressDialog->setCellStatus(cell256X - mCellBounds256.x(), cell256Y - mCellBounds256.y(), ExportLotsProgressDialog::CellStatus::Pending);
@@ -349,7 +357,9 @@ bool LotFilesManager256::generateCell(WorldCell *cell)
 
     int cell300X = lotSettings.worldOrigin.x() + cell->x();
     int cell300Y = lotSettings.worldOrigin.y() + cell->y();
-    QRect cellBounds256 = CombinedCellMaps::toCellRect256(QRect(cell300X, cell300Y, 1, 1));
+    QRect cellBounds256 = (mWorldDoc->world()->cellSize() == CELL_SIZE_256)
+        ? QRect(cell300X, cell300Y, 1, 1)
+        : CombinedCellMaps::toCellRect256(QRect(cell300X, cell300Y, 1, 1));
 #if 1
     for (int cell256Y = cellBounds256.top(); cell256Y <= cellBounds256.bottom(); cell256Y++) {
         for (int cell256X = cellBounds256.left(); cell256X <= cellBounds256.right(); cell256X++) {
@@ -578,7 +588,10 @@ bool LotFilesManager256::overwriteSpawnMap(WorldDocument *worldDoc, GenerateMode
     mWorldDoc = worldDoc;
     World *world = worldDoc->world();
     const GenerateLotsSettings &lotSettings = world->getGenerateLotsSettings();
-    mCellBounds256 = CombinedCellMaps::toCellRect256(QRect(lotSettings.worldOrigin, QSize(world->size())));
+    if (world->cellSize() == CELL_SIZE_256)
+        mCellBounds256 = QRect(lotSettings.worldOrigin, QSize(world->size()));
+    else
+        mCellBounds256 = CombinedCellMaps::toCellRect256(QRect(lotSettings.worldOrigin, QSize(world->size())));
 
     QScopedPointer<ExportLotsProgressDialog> scoped(new ExportLotsProgressDialog(MainWindow::instance()));
     mDialog = scoped.get();
@@ -613,12 +626,16 @@ bool LotFilesManager256::overwriteSpawnMap(WorldDocument *worldDoc, GenerateMode
     // A single 300x300 cell may overlap 4, 6, or 9 256x256 cells.
     mDoneCells256.clear();
 
+    const bool isNative256 = (world->cellSize() == CELL_SIZE_256);
+
     if (mode == GenerateMode::GenerateAll) {
         for (int y = 0; y < world->height(); y++) {
             for (int x = 0; x < world->width(); x++) {
                 int cell300X = lotSettings.worldOrigin.x() + x;
                 int cell300Y = lotSettings.worldOrigin.y() + y;
-                QRect cellBounds256 = CombinedCellMaps::toCellRect256(QRect(cell300X, cell300Y, 1, 1));
+                QRect cellBounds256 = isNative256
+                    ? QRect(cell300X, cell300Y, 1, 1)
+                    : CombinedCellMaps::toCellRect256(QRect(cell300X, cell300Y, 1, 1));
                 for (int cell256Y = cellBounds256.top(); cell256Y <= cellBounds256.bottom(); cell256Y++) {
                     for (int cell256X = cellBounds256.left(); cell256X <= cellBounds256.right(); cell256X++) {
                         mProgressDialog->setCellStatus(cell256X - mCellBounds256.left(), cell256Y - mCellBounds256.top(), ExportLotsProgressDialog::CellStatus::Pending);
@@ -630,7 +647,10 @@ bool LotFilesManager256::overwriteSpawnMap(WorldDocument *worldDoc, GenerateMode
             for (int x = 0; x < world->width(); x++) {
                 int cell300X = lotSettings.worldOrigin.x() + x;
                 int cell300Y = lotSettings.worldOrigin.y() + y;
-                if (overwriteSpawnMap300(cell300X, cell300Y) == false) {
+                bool ok = isNative256
+                    ? overwriteSpawnMap256(cell300X, cell300Y)
+                    : overwriteSpawnMap300(cell300X, cell300Y);
+                if (!ok) {
                     mDialog = nullptr;
                     return false;
                 }
@@ -642,7 +662,9 @@ bool LotFilesManager256::overwriteSpawnMap(WorldDocument *worldDoc, GenerateMode
         for (WorldCell *cell : worldDoc->selectedCells()) {
             int cell300X = lotSettings.worldOrigin.x() + cell->x();
             int cell300Y = lotSettings.worldOrigin.y() + cell->y();
-            QRect cellBounds256 = CombinedCellMaps::toCellRect256(QRect(cell300X, cell300Y, 1, 1));
+            QRect cellBounds256 = isNative256
+                ? QRect(cell300X, cell300Y, 1, 1)
+                : CombinedCellMaps::toCellRect256(QRect(cell300X, cell300Y, 1, 1));
             for (int cell256Y = cellBounds256.top(); cell256Y <= cellBounds256.bottom(); cell256Y++) {
                 for (int cell256X = cellBounds256.left(); cell256X <= cellBounds256.right(); cell256X++) {
                     mProgressDialog->setCellStatus(cell256X - mCellBounds256.left(), cell256Y - mCellBounds256.top(), ExportLotsProgressDialog::CellStatus::Pending);
@@ -652,7 +674,10 @@ bool LotFilesManager256::overwriteSpawnMap(WorldDocument *worldDoc, GenerateMode
         for (WorldCell *cell : worldDoc->selectedCells()) {
             int cell300X = lotSettings.worldOrigin.x() + cell->x();
             int cell300Y = lotSettings.worldOrigin.y() + cell->y();
-            if (overwriteSpawnMap300(cell300X, cell300Y) == false) {
+            bool ok = isNative256
+                ? overwriteSpawnMap256(cell300X, cell300Y)
+                : overwriteSpawnMap300(cell300X, cell300Y);
+            if (!ok) {
                 mDialog = nullptr;
                 return false;
             }
@@ -809,6 +834,28 @@ void LotFilesManager256::writeZombieIntensity(QDataStream &out, int cell256X, in
 {
     const GenerateLotsSettings &lotSettings = mWorldDoc->world()->getGenerateLotsSettings();
 
+    if (mWorldDoc->world()->cellSize() == CELL_SIZE_256) {
+        // B42 native: one lot = 256 tiles = 32 chunks of 8 tiles each.
+        // Zombie spawn map has one pixel per 32-chunk B42 cell.
+        QRect spawnBounds(lotSettings.worldOrigin.x() * CHUNKS_PER_CELL_256,
+                          lotSettings.worldOrigin.y() * CHUNKS_PER_CELL_256,
+                          ZombieSpawnMap.width(), ZombieSpawnMap.height());
+        for (int x = 0; x < CHUNKS_PER_CELL_256; x++) {
+            for (int y = 0; y < CHUNKS_PER_CELL_256; y++) {
+                int chunkX = cell256X * CHUNKS_PER_CELL_256 + x;
+                int chunkY = cell256Y * CHUNKS_PER_CELL_256 + y;
+                quint8 intensity = 0;
+                if (spawnBounds.contains(chunkX, chunkY)) {
+                    QRgb pixel = ZombieSpawnMap.pixel(chunkX - spawnBounds.left(),
+                                                      chunkY - spawnBounds.top());
+                    intensity = quint8(qRed(pixel));
+                }
+                out << intensity;
+            }
+        }
+        return;
+    }
+
     QRect cellBounds300 = CombinedCellMaps::toCellRect300(QRect(cell256X, cell256Y, 1, 1));
 
     // Set the zombie intensity on each square using the spawn image.
@@ -921,8 +968,8 @@ bool LotFilesWorker256::generateCell()
         return true;
     }
 
-    int mapWidth = combinedMaps.mCellsWidth * CELL_WIDTH;
-    int mapHeight = combinedMaps.mCellsHeight * CELL_HEIGHT;
+    int mapWidth = combinedMaps.mCellsWidth * combinedMaps.mCellSize;
+    int mapHeight = combinedMaps.mCellsHeight * combinedMaps.mCellSize;
 
     // Resize the grid and cleanup data from the previous cell.
     mGridData.resize(mapWidth);
@@ -938,8 +985,8 @@ bool LotFilesWorker256::generateCell()
     mMaxLevel = -10000;
 
     Tile *missingTile = Tiled::Internal::TilesetManager::instance()->missingTile();
-    QRect cellBounds256(cell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * CELL_WIDTH,
-                        cell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * CELL_WIDTH,
+    QRect cellBounds256(cell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * combinedMaps.mCellSize,
+                        cell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * combinedMaps.mCellSize,
                         CELL_SIZE_256, CELL_SIZE_256);
     QVector<const Tiled::Cell *> cells(40);
     for (CompositeLayerGroup *lg : mapComposite->layerGroups()) {
@@ -1936,6 +1983,39 @@ bool CombinedCellMaps::startLoading(WorldDocument *worldDoc, int cell256X, int c
     const GenerateLotsSettings &lotSettings = worldDoc->world()->getGenerateLotsSettings();
     mCell256X = cell256X;
     mCell256Y = cell256Y;
+    mCells.clear();
+
+    if (worldDoc->world()->cellSize() == CELL_SIZE_256) {
+        // worldOrigin is in native B42-256 lot coordinates; each editor cell maps to exactly one lot.
+        mCellSize = CELL_SIZE_256;
+        mMinCell300X = cell256X;
+        mMinCell300Y = cell256Y;
+        mCellsWidth = 1;
+        mCellsHeight = 1;
+        WorldCell *cell = worldDoc->world()->cellAt(
+            cell256X - lotSettings.worldOrigin.x(),
+            cell256Y - lotSettings.worldOrigin.y());
+        if (cell && !cell->mapFilePath().isEmpty()) {
+            MapInfo *mapInfo = MapManager::instance()->loadMap(cell->mapFilePath(), QString(), true);
+            if (mapInfo == nullptr) {
+                mError = MapManager::instance()->errorString();
+                return false;
+            }
+            mLoader.addMap(mapInfo);
+            for (WorldCellLot *lot : cell->lots()) {
+                if (MapInfo *info = MapManager::instance()->loadMap(lot->mapName(), QString(), true, MapManager::PriorityMedium)) {
+                    mLoader.addMap(info);
+                } else {
+                    mError = MapManager::instance()->errorString();
+                    return false;
+                }
+            }
+            mCells += cell;
+        }
+        return true;
+    }
+
+    mCellSize = CELL_WIDTH;
     QRect cellBounds300 = toCellRect300(QRect(cell256X, cell256Y, 1, 1));
     int minCell300X = cellBounds300.x();
     int minCell300Y = cellBounds300.y();
@@ -1945,7 +2025,6 @@ bool CombinedCellMaps::startLoading(WorldDocument *worldDoc, int cell256X, int c
     mMinCell300Y = minCell300Y;
     mCellsWidth = maxCell300X - minCell300X;
     mCellsHeight = maxCell300Y - minCell300Y;
-    mCells.clear();
     for (int cell300Y = minCell300Y; cell300Y < maxCell300Y; cell300Y++) {
         for (int cell300X = minCell300X; cell300X < maxCell300X; cell300X++) {
             WorldCell* cell = worldDoc->world()->cellAt(cell300X - lotSettings.worldOrigin.x(), cell300Y - lotSettings.worldOrigin.y());
@@ -1989,7 +2068,7 @@ int CombinedCellMaps::checkLoading(WorldDocument *worldDoc)
     mMapComposite = new MapComposite(mapInfo);
     for (WorldCell* cell : mCells) {
         MapInfo *info = MapManager::instance()->mapInfo(cell->mapFilePath());
-        QPoint cellPos((cell->x() + lotSettings.worldOrigin.x() - mMinCell300X) * CELL_WIDTH, (cell->y() + lotSettings.worldOrigin.y() - mMinCell300Y) * CELL_HEIGHT);
+        QPoint cellPos((cell->x() + lotSettings.worldOrigin.x() - mMinCell300X) * mCellSize, (cell->y() + lotSettings.worldOrigin.y() - mMinCell300Y) * mCellSize);
         MapComposite* subMap = mMapComposite->addMap(info, cellPos, 0);
         subMap->setLotFilesManagerMap(true);
         for (WorldCellLot *lot : cell->lots()) {
@@ -2004,7 +2083,7 @@ int CombinedCellMaps::checkLoading(WorldDocument *worldDoc)
 MapInfo *CombinedCellMaps::getCombinedMap()
 {
     QString mapFilePath(QLatin1String("<LotFilesManagerMap>"));
-    Map *map = new Map(Map::LevelIsometric, mCellsWidth * CELL_WIDTH, mCellsHeight * CELL_HEIGHT, 64, 32);
+    Map *map = new Map(Map::LevelIsometric, mCellsWidth * mCellSize, mCellsHeight * mCellSize, 64, 32);
     MapInfo *mapInfo = new MapInfo(map);
     mapInfo->setFilePath(mapFilePath);
     return mapInfo;

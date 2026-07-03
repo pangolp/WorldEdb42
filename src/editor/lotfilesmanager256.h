@@ -49,6 +49,7 @@ public:
     int mMinCell300Y;
     int mCellsWidth;
     int mCellsHeight;
+    int mCellSize = CELL_WIDTH;
     QList<WorldCell*> mCells;
     DelayedMapLoader mLoader;
     MapComposite* mMapComposite = nullptr;
