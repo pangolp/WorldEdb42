@@ -14,6 +14,9 @@ class CellGridWidget : public QWidget
 public:
     enum class CellStatus { Pending, Failed, Exported, Missing };
 
+    static const int CELL_PX = 14;
+    static const int GAP = 1;
+
     explicit CellGridWidget(QWidget *parent = nullptr);
     void setWorldSize(int w, int h);
     void setCellStatus(int x, int y, CellStatus status);
@@ -26,8 +29,6 @@ private:
     int mWidth = 0;
     int mHeight = 0;
     QVector<CellStatus> mStatus;
-    static const int CELL_PX = 14;
-    static const int GAP = 1;
 };
 
 class ExportLotsProgressDialog : public QDialog

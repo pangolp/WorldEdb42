@@ -31,7 +31,9 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(TILED_LIBRARY)
+#if defined(TILED_STATIC)
+#  define TILEDSHARED_EXPORT
+#elif defined(TILED_LIBRARY)
 #  define TILEDSHARED_EXPORT Q_DECL_EXPORT
 #else
 #  define TILEDSHARED_EXPORT Q_DECL_IMPORT
