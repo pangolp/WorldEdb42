@@ -524,13 +524,13 @@ MapInfo *MapManager::mapInfo(const QString &mapFilePath)
 // FIXME: this map is shared by any CellDocument whose cell has no map specified.
 // Adding sub-maps to a cell may add new layers to this shared map.
 // If that happens, all CellScenes using this map will need to be updated.
-MapInfo *MapManager::getEmptyMap()
+MapInfo *MapManager::getEmptyMap(int cellSize)
 {
-    QString mapFilePath(QLatin1String("<empty>"));
+    QString mapFilePath = QStringLiteral("<empty-%1>").arg(cellSize);
     if (mMapInfo.contains(mapFilePath))
         return mMapInfo[mapFilePath];
 
-    MapInfo *mapInfo = new MapInfo(Map::LevelIsometric, 300, 300, 64, 32);
+    MapInfo *mapInfo = new MapInfo(Map::LevelIsometric, cellSize, cellSize, 64, 32);
     Map *map = new Map(mapInfo->orientation(),
                        mapInfo->width(), mapInfo->height(),
                        mapInfo->tileWidth(), mapInfo->tileHeight());
@@ -823,8 +823,7 @@ void MapManager::buildingLoadedByThread(Building *building, MapInfo *mapInfo)
     QSet<Tileset*> usedTilesets = map->usedTilesets();
     usedTilesets.remove(TilesetManager::instance()->missingTileset());
 
-    //TileMetaInfoMgr::instance()->loadTilesets({ usedTilesets.begin(), usedTilesets.end() });
-    TileMetaInfoMgr::instance()->loadTilesets({ usedTilesets.toList() });
+    TileMetaInfoMgr::instance()->loadTilesets({ usedTilesets.begin(), usedTilesets.end() });
 
     // The map references TileMetaInfoMgr's tilesets, but we add a reference
     // to them ourself below.

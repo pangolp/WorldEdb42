@@ -308,8 +308,7 @@ QSet<Tileset*> TileLayer::usedTilesets() const
 {
 #ifdef ZOMBOID
     QList<Tileset*> keys = mUsedTilesets.keys();
-    //return { keys.begin(), keys.end() };
-    return keys.toSet();
+    return QSet<Tileset*>(keys.begin(), keys.end());
 #else
     QSet<Tileset*> tilesets;
 

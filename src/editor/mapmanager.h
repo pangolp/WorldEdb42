@@ -95,6 +95,24 @@ public:
 
     }
 
+    explicit MapInfo(Tiled::Map *map)
+        : mOrientation(map->orientation())
+        , mWidth(map->width())
+        , mHeight(map->height())
+        , mTileWidth(map->tileWidth())
+        , mTileHeight(map->tileHeight())
+        , mMap(map)
+        , mPlaceholder(false)
+        , mBeingEdited(false)
+#ifdef WORLDED
+        , mMapRefCount(0)
+        , mReferenceEpoch(0)
+#endif
+        , mLoading(false)
+    {
+
+    }
+
     bool isValid() const { return mWidth > 0 && mHeight > 0; }
 
     Tiled::Map::Orientation orientation() const { return mOrientation; }
@@ -173,7 +191,7 @@ public:
      * The "empty map" is used when a WorldCell has no map.
      * The user still needs to view the cell to place Lots etc.
      */
-    MapInfo *getEmptyMap();
+    MapInfo *getEmptyMap(int cellSize = 300);
 
     /**
       * A "placeholder" map is used when a sub-map could not be loaded.

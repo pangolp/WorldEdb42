@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2012, Tim Baker <treectrl@users.sf.net>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -289,7 +289,7 @@ static BuildingTileEntry *readTileEntry(BuildingTileCategory *category,
 
     foreach (SimpleFileKeyValue kv, block.values) {
         if (kv.name == QLatin1String("offset")) {
-            QStringList split = kv.value.split(QLatin1Char(' '), QString::SkipEmptyParts);
+            QStringList split = kv.value.split(QLatin1Char(' '), Qt::SkipEmptyParts);
             if (split.size() != 3) {
                 error = BuildingTilesMgr::instance()->tr("Expected 'offset = name x y', got '%1'").arg(kv.value);
                 delete entry;

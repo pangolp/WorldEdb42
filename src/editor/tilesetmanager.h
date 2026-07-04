@@ -186,6 +186,12 @@ public:
     Tileset *missingTileset() const
     { return mMissingTileset; }
 
+    Tile *invisibleTile() const
+    { return mMissingTile; }
+
+    Tileset *invisibleTileset() const
+    { return mMissingTileset; }
+
     Tile *noBlendTile() const
     { return mNoBlendTile; }
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2013, Tim Baker <treectrl@users.sf.net>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -481,8 +481,7 @@ void BmpBlender::initTiles()
     if (true/*mHack*/) {
         mKnownBlendTiles.clear();
         foreach (BlendWrapper *blendW, mBlendList) {
-            //mKnownBlendTiles += QSet<Tile*>(blendW->mBlendTiles.begin(), blendW->mBlendTiles.end());
-            mKnownBlendTiles += QSet<Tile*>(blendW->mBlendTiles.toList().toSet());
+            mKnownBlendTiles += QSet<Tile*>(blendW->mBlendTiles.begin(), blendW->mBlendTiles.end());
         }
     }
 }
@@ -1165,7 +1164,7 @@ void BmpRulesFile::AddRule(const QString &label, int bitmapIndex, QRgb col,
 
 QRgb BmpRulesFile::rgbFromString(const QString &string, bool &ok)
 {
-    QStringList rgb = string.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    QStringList rgb = string.split(QLatin1Char(' '), Qt::SkipEmptyParts);
     return rgbFromStringList(rgb, ok);
 }
 

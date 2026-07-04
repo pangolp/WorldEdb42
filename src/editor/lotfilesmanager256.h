@@ -29,6 +29,15 @@
 
 class ExportLotsProgressDialog;
 
+class JumboZone
+{
+public:
+    JumboZone(const QString &name, int density)
+        : zoneName(name), density(density) {}
+    QString zoneName;
+    int density;
+};
+
 class CombinedCellMaps
 {
 public:

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2012, Tim Baker <treectrl@users.sf.net>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -739,7 +739,7 @@ bool TileMetaInfoMgr::isEnumNorth(const QString &enumName) const
 
 bool TileMetaInfoMgr::parse2Ints(const QString &s, int *pa, int *pb)
 {
-    QStringList coords = s.split(QLatin1Char(','), QString::SkipEmptyParts);
+    QStringList coords = s.split(QLatin1Char(','), Qt::SkipEmptyParts);
     if (coords.size() != 2)
         return false;
     bool ok;

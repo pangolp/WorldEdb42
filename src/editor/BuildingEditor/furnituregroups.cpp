@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2012, Tim Baker <treectrl@users.sf.net>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -120,7 +120,7 @@ FurnitureTiles *FurnitureGroups::furnitureTilesFromSFB(SimpleFileBlock &furnitur
                 if (!kv.name.contains(QLatin1Char(',')))
                     continue;
                 QStringList values = kv.name.split(QLatin1Char(','),
-                                                   QString::SkipEmptyParts);
+                                                   Qt::SkipEmptyParts);
                 int x = values[0].toInt();
                 int y = values[1].toInt();
                 if (x < 0 || x >= 50 || y < 0 || y >= 50) {
@@ -217,7 +217,7 @@ bool FurnitureGroups::readTxt()
                                 if (!kv.name.contains(QLatin1Char(',')))
                                     continue;
                                 QStringList values = kv.name.split(QLatin1Char(','),
-                                                                   QString::SkipEmptyParts);
+                                                                   Qt::SkipEmptyParts);
                                 int x = values[0].toInt();
                                 int y = values[1].toInt();
                                 if (x < 0 || x >= 50 || y < 0 || y >= 50) {

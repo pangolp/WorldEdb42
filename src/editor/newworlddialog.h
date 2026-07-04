@@ -33,6 +33,7 @@ public:
     ~NewWorldDialog();
 
     QSize worldSize() const;
+    int cellSize() const;
     
 private:
     Ui::NewWorldDialog *ui;

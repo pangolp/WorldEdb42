@@ -20,7 +20,9 @@
 
 #include "gidmapper.h"
 
+#include <QList>
 #include <QObject>
+#include <QRect>
 
 class BMPToTMXImages;
 class MapComposite;
@@ -41,6 +43,20 @@ class ObjectGroup;
 
 #define CHUNK_WIDTH 10
 #define CHUNK_HEIGHT 10
+
+#ifndef CHUNKS_PER_CELL
+#define CHUNKS_PER_CELL 30
+#endif
+
+#ifndef MAX_WORLD_LEVELS
+#define MAX_WORLD_LEVELS 16
+#endif
+#ifndef MIN_WORLD_LEVEL
+#define MIN_WORLD_LEVEL -8
+#endif
+#ifndef MAX_WORLD_LEVEL
+#define MAX_WORLD_LEVEL 7
+#endif
 
 namespace LotFile
 {
@@ -209,6 +225,7 @@ public:
     int floor;
     QString name;
     Room *room;
+    WorldCell *mCell = nullptr;
 };
 
 class Room
@@ -234,10 +251,22 @@ public:
         return false;
     }
 
+    QRect bounds() const { return mBounds; }
+
+    QRect calculateBounds() const
+    {
+        if (rects.isEmpty()) return QRect();
+        QRect b = rects.first()->bounds();
+        for (RoomRect *rr : rects) b = b.united(rr->bounds());
+        return b;
+    }
+
     int ID;
     int floor;
     QString name;
     Building *building;
+    WorldCell *mCell = nullptr;
+    QRect mBounds;
     QList<RoomRect*> rects;
     QList<RoomObject> objects;
 };
@@ -245,6 +274,15 @@ public:
 class Building
 {
 public:
+    QRect calculateBounds() const
+    {
+        QRect b;
+        for (Room *r : RoomList) {
+            QRect rb = r->calculateBounds();
+            b = b.isNull() ? rb : b.united(rb);
+        }
+        return b;
+    }
     QList<Room*> RoomList;
 };
 
@@ -259,10 +297,55 @@ public:
     {
     }
 
+    void reset()
+    {
+        numBuildings = numRooms = numRoomRects = numRoomObjects = 0;
+    }
+
+    void combine(const Stats &other)
+    {
+        numBuildings  += other.numBuildings;
+        numRooms      += other.numRooms;
+        numRoomRects  += other.numRoomRects;
+        numRoomObjects+= other.numRoomObjects;
+    }
+
     int numBuildings;
     int numRooms;
     int numRoomRects;
     int numRoomObjects;
+};
+
+template <class T>
+class RectLookup
+{
+public:
+    RectLookup() : mOffsetX(0), mOffsetY(0), mChunkSize(1) {}
+
+    void clear(int offsetX, int offsetY, int width, int height, int chunkSize)
+    {
+        mOffsetX = offsetX;
+        mOffsetY = offsetY;
+        mChunkSize = chunkSize ? chunkSize : 1;
+        mWidth = width;
+        mHeight = height;
+        mItems.clear();
+    }
+
+    void add(T *item, const QRect &bounds) { mItems.append({item, bounds}); }
+
+    void overlapping(const QRect &bounds, QList<T*> &result) const
+    {
+        for (const auto &entry : mItems) {
+            if (entry.bounds.intersects(bounds))
+                result.append(entry.item);
+        }
+    }
+
+private:
+    struct Entry { T *item; QRect bounds; };
+    QList<Entry> mItems;
+    int mOffsetX, mOffsetY, mChunkSize, mWidth = 0, mHeight = 0;
 };
 
 } // namespace LotFile

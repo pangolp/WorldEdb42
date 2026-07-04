@@ -30,10 +30,8 @@ InGameMapPropertyDialog::InGameMapPropertyDialog(QWidget *parent) :
             }
         }
     }
-    //ui->keyEdit->setCompleter(new QCompleter(QStringList(keySet.begin(), keySet.end()), this));
-    ui->keyEdit->setCompleter(new QCompleter(QStringList(keySet.toList()), this));
-    //ui->valueEdit->setCompleter(new QCompleter(QStringList(valueSet.begin(), valueSet.end()), this));
-    ui->valueEdit->setCompleter(new QCompleter(QStringList(valueSet.toList()), this));
+    ui->keyEdit->setCompleter(new QCompleter(QStringList(keySet.begin(), keySet.end()), this));
+    ui->valueEdit->setCompleter(new QCompleter(QStringList(valueSet.begin(), valueSet.end()), this));
 }
 
 InGameMapPropertyDialog::~InGameMapPropertyDialog()

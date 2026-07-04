@@ -100,6 +100,7 @@
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QDebug>
+#include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
@@ -501,6 +502,7 @@ void MainWindow::newWorld()
     QSize size = dialog.worldSize();
 
     World *newWorld = new World(size.width(), size.height());
+    newWorld->setCellSize(dialog.cellSize());
     DefaultsFile::newWorld(newWorld);
     WorldDocument *newDoc = new WorldDocument(newWorld);
     docman()->addDocument(newDoc);
@@ -1552,6 +1554,30 @@ void MainWindow::updateWindowTitle()
     setWindowModified(isModified);
 }
 
+static void writeLuaFiles(MainWindow *mainWin, World *world)
+{
+    QString luaFileName = world->getLuaSettings().spawnPointsFile;
+    if (!luaFileName.isEmpty()) {
+        LuaWriter writer;
+        if (!writer.writeSpawnPoints(world, luaFileName)) {
+            QMessageBox::warning(mainWin, mainWin->tr("Error saving spawnpoints"),
+                                 mainWin->tr("An error occurred saving the LUA spawnpoints file.\n%1\n\n%2")
+                                 .arg(writer.errorString())
+                                 .arg(QDir::toNativeSeparators(luaFileName)));
+        }
+    }
+    luaFileName = world->getLuaSettings().worldObjectsFile;
+    if (!luaFileName.isEmpty()) {
+        LuaWriter writer;
+        if (!writer.writeWorldObjects(world, luaFileName)) {
+            QMessageBox::warning(mainWin, mainWin->tr("Error saving objects"),
+                                 mainWin->tr("An error occurred saving the LUA objects file.\n%1\n\n%2")
+                                 .arg(writer.errorString())
+                                 .arg(QDir::toNativeSeparators(luaFileName)));
+        }
+    }
+}
+
 static void generateLots(MainWindow *mainWin, Document *doc,
                          LotFilesManager::GenerateMode mode)
 {
@@ -1567,6 +1593,7 @@ static void generateLots(MainWindow *mainWin, Document *doc,
         QMessageBox::warning(mainWin, mainWin->tr("Lot Generation Failed!"),
                              LotFilesManager::instance()->errorString());
     }
+    writeLuaFiles(mainWin, worldDoc->world());
 #if 0
     TileMetaInfoMgr::deleteInstance();
 #endif
@@ -1595,6 +1622,7 @@ static void generateLots8x8(MainWindow *mainWin, Document *doc, LotFilesManager2
     if (LotFilesManager256::instance()->generateWorld(worldDoc, mode) == false) {
         QMessageBox::warning(mainWin, mainWin->tr("Lot Generation Failed!"), LotFilesManager256::instance()->errorString());
     }
+    writeLuaFiles(mainWin, worldDoc->world());
 #if 0
     TileMetaInfoMgr::deleteInstance();
 #endif

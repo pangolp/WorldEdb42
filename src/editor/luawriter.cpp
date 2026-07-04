@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2012, Tim Baker <treectrl@users.sf.net>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -293,7 +293,7 @@ public:
                         PropertyList properties;
                         resolveProperties(obj, properties);
                         if (Property *p = properties.find(pd)) {
-                            QStringList professions = p->mValue.split(QLatin1String(","), QString::SkipEmptyParts);
+                            QStringList professions = p->mValue.split(QLatin1String(","), Qt::SkipEmptyParts);
                             if (professions.contains(QLatin1String("all"))) {
                                 if (pd->mEnum)
                                     professions = pd->mEnum->values();
@@ -314,10 +314,14 @@ public:
             foreach (WorldCellObject *obj, spawnByProfession[profession]) {
                 w.writeStartTable();
                 w.setSuppressNewlines(true);
-                w.writeKeyAndValue("worldX", obj->cell()->x() + origin.x());
-                w.writeKeyAndValue("worldY", obj->cell()->y() + origin.y());
-                w.writeKeyAndValue("posX", obj->x());
-                w.writeKeyAndValue("posY", obj->y());
+                // worldX/posX use the world's own cellSize (256 for B42, 300 for B41).
+                int cellSz = mWorld->cellSize();
+                int absX   = (obj->cell()->x() + origin.x()) * cellSz + (int)obj->x();
+                int absY   = (obj->cell()->y() + origin.y()) * cellSz + (int)obj->y();
+                w.writeKeyAndValue("worldX", absX / cellSz);
+                w.writeKeyAndValue("worldY", absY / cellSz);
+                w.writeKeyAndValue("posX",   absX % cellSz);
+                w.writeKeyAndValue("posY",   absY % cellSz);
                 w.writeKeyAndValue("posZ", obj->level());
 
                 PropertyList properties;
@@ -503,6 +507,13 @@ bool LuaWriter::writeWorldObjects(World *world, const QString &filePath)
         return false;
     }
 
+    return true;
+}
+
+bool LuaWriter::writeRoomTones(World *world, const QString &filePath)
+{
+    Q_UNUSED(world)
+    Q_UNUSED(filePath)
     return true;
 }
 

@@ -430,7 +430,7 @@ private:
 class DnDItem : public QGraphicsItem
 {
 public:
-    DnDItem(const QString &path, Tiled::MapRenderer *renderer, int level, QGraphicsItem *parent = 0);
+    DnDItem(MapInfo *mapInfo, Tiled::MapRenderer *renderer, int level, QGraphicsItem *parent = 0);
 
     QRectF boundingRect() const;
 
@@ -444,11 +444,13 @@ public:
     void setHotSpot(int x, int y) { setHotSpot(QPoint(x, y)); }
     QPoint hotSpot() { return mHotSpot; }
 
-    QPoint dropPosition();
+    QPoint positionInMap() const;
+    QPoint dropPosition() const;
 
     MapInfo *mapInfo();
 
 private:
+    MapInfo *mMapInfo;
     MapImage *mMapImage;
     Tiled::MapRenderer *mRenderer;
     QRectF mBoundingRect;
@@ -492,18 +494,23 @@ private:
     struct LotImage {
         LotImage()
             : mMapImage(0)
+            , mLevel(0)
         {
         }
 
-        LotImage(const QRectF &bounds, MapImage *mapImage)
+        LotImage(const QRectF &bounds, MapImage *mapImage, int level = 0)
             : mBounds(bounds)
             , mMapImage(mapImage)
+            , mLevel(level)
         {
         }
 
         QRectF mBounds;
         MapImage *mMapImage;
+        int mLevel;
     };
+
+    void paintLotImage(QPainter *painter, const LotImage &lotImage);
 
     CellScene *mScene;
     WorldCell *mCell;
@@ -680,6 +687,7 @@ struct VBOTile
     QString mTilesetName;
     Tiled::Tile::UVST mAtlasUVST;
     TilesetTexture *mTexture = nullptr;
+    bool mInvisible = false;
 };
 
 const int VBO_SQUARES = 10 * 3;
@@ -721,6 +729,8 @@ public:
     VBOTiles *getTilesFor(const QPoint& square, bool bCreate);
     void getSquaresInRect(Tiled::MapRenderer *renderer, const QRectF &exposedRect, QList<QPoint>& out);
     bool isEmpty() const;
+    int tryAddExtraJumbo_Trunk(const Tiled::Tile *tile, const QPointF &screenPos, int tileWidth, QList<VBOTile> &tiles);
+    int tryAddExtraJumbo_Leaves(const Tiled::Tile *tile, const QPointF &screenPos, int tileWidth, QList<VBOTile> &tiles);
 
 public slots:
     void aboutToBeDestroyed();
@@ -857,6 +867,8 @@ signals:
     void mapContentsChanged();
 
 public slots:
+    void showCellBorderChanged(bool show);
+    void showInvisibleTilesChanged(bool show);
     void tilesetChanged(Tileset *tileset);
 
     bool mapAboutToChange(MapInfo *mapInfo);

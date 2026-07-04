@@ -34,6 +34,7 @@ public:
     bool writeWorld(World *world, const QString &filePath);
     bool writeSpawnPoints(World *world, const QString &filePath);
     bool writeWorldObjects(World *world, const QString &filePath);
+    bool writeRoomTones(World *world, const QString &filePath);
     QString errorString() const;
 
 private:

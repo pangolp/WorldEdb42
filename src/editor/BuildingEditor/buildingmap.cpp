@@ -346,8 +346,7 @@ static QList<QRect> cleanupRegion(QRegion region)
 {
     // Clean up the region by merging vertically-adjacent rectangles of the
     // same width.
-    //QVector<QRect> rects(region.begin(), region.end());
-    QVector<QRect> rects(region.rects());
+    QVector<QRect> rects(region.begin(), region.end());
     for (int i = 0; i < rects.size(); i++) {
         QRect r = rects[i];
         if (!r.isValid()) continue;
@@ -440,8 +439,7 @@ void BuildingMap::buildingRotated()
     // When rotating or flipping, all the user tiles are cleared.
     // However, no signal is emitted until the buildingRotated signal.
     QList<BuildingFloor*> floors = mBuilding->floors();
-    //pendingEraseUserTiles = QSet<BuildingFloor*>(floors.begin(), floors.end());
-    pendingEraseUserTiles = QSet<BuildingFloor*>(floors.toSet());
+    pendingEraseUserTiles = QSet<BuildingFloor*>(floors.begin(), floors.end());
 
     schedulePending();
 }
@@ -864,8 +862,7 @@ void BuildingMap::handlePending()
 
     if (pendingRecreateAll || pendingBuildingResized) {
         QList<BuildingFloor*> floors = mBuilding->floors();
-        //pendingLayoutToSquares = QSet<BuildingFloor*>(floors.begin(), floors.end());
-        pendingLayoutToSquares = QSet<BuildingFloor*>(floors.toSet());
+        pendingLayoutToSquares = QSet<BuildingFloor*>(floors.begin(), floors.end());
         pendingUserTilesToLayer.clear();
         foreach (BuildingFloor *floor, mBuilding->floors()) {
             foreach (QString layerName, floor->grimeLayers()) {

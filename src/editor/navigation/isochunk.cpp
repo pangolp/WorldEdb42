@@ -66,5 +66,7 @@ bool IsoChunk::containsWorldPos(int x, int y, int z)
 
 void IsoChunk::orderedCellsAt(int x, int y, QVector<const Tiled::Cell *> &cells)
 {
-    mMapComposite->layerGroupForLevel(0)->orderedCellsAt2(QPoint(x, y), cells);
+    CompositeLayerGroup *lg = mMapComposite->layerGroupForLevel(0);
+    if (lg)
+        lg->orderedCellsAt2(QPoint(x, y), cells);
 }

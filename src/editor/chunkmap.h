@@ -235,9 +235,24 @@ public:
     QList<RoomDef*> rooms;
 };
 
+class IsoConstants
+{
+public:
+    explicit IsoConstants(bool b256 = false)
+        : SQUARES_PER_CHUNK(b256 ? 8 : 10)
+        , CHUNKS_PER_CELL(b256 ? 32 : 30)
+        , SQUARES_PER_CELL((b256 ? 32 : 30) * (b256 ? 8 : 10))
+    {}
+    int SQUARES_PER_CHUNK;
+    int CHUNKS_PER_CELL;
+    int SQUARES_PER_CELL;
+};
+
 class LotHeader
 {
 public:
+    static const int VERSION0 = 0;
+
     IsoRoom *getRoom(int roomID);
     int getRoomAt(int x, int y, int z);
 
@@ -254,13 +269,19 @@ public:
 class IsoLot
 {
 public:
+    static const int VERSION0 = 0;
+    static const int VERSION_LATEST = 1;
+
     IsoLot(QString directory, int cX, int cY, int wX, int wY, IsoChunk *ch);
 
     static unsigned char readByte(QDataStream &in);
     static int readInt(QDataStream &in);
     static QString readString(QDataStream &in);
 
+    static bool getMapDirectoryChunkSize(const QString &directory, int &chunkWidth, int &chunkHeight);
+
     static QMap<QString,LotHeader*> InfoHeaders;
+    static QMap<QString,LotHeader*> CellCoordToLotHeader;
     QVector<QVector<QVector<int> > > roomIDs;
     QVector<QVector<QVector<QList<int> > > > data;
     LotHeader *info;
@@ -285,6 +306,8 @@ public:
     static int MaxHeight;
     int width;
     int height;
+    int minLevel = 0;
+    int maxLevel = 7;
     IsoChunkMap *ChunkMap;
     IsoWorld *World;
 
@@ -312,6 +335,7 @@ class IsoMetaGrid
 {
 public:
     IsoMetaGrid();
+    explicit IsoMetaGrid(IsoConstants constants) : mConstants(constants) {}
 
     void Create(const QString &directory);
 
@@ -323,16 +347,18 @@ public:
                    (maxx - minx + 1) * IsoChunkMap::ChunkGridWidth,
                    (maxy - miny + 1) * IsoChunkMap::ChunkGridWidth); }
 
-    int minx;
-    int miny;
-    int maxx;
-    int maxy;
+    int minx = 0;
+    int miny = 0;
+    int maxx = 0;
+    int maxy = 0;
+    IsoConstants mConstants;
 };
 
 class IsoWorld
 {
 public:
     IsoWorld(const QString &path);
+    IsoWorld(const QString &path, IsoConstants constants);
     ~IsoWorld();
 
     void init();
@@ -350,6 +376,7 @@ public:
     IsoMetaGrid *MetaGrid;
     IsoCell *CurrentCell;
     QString Directory;
+    IsoConstants isoConstants;
 };
 
 #endif // CHUNKMAP_H

@@ -264,7 +264,7 @@ bool LotFilesManager::generateCell(WorldCell *cell)
         mapComposite->addMap(info, lot->pos(), lot->level());
     }
 
-    mapComposite->generateRoadLayers(QPoint(cell->x() * 300, cell->y() * 300),
+    mapComposite->generateRoadLayers(QPoint(cell->x() * cell->world()->cellSize(), cell->y() * cell->world()->cellSize()),
                                      cell->world()->roads());
 
     progress.update(tr("Generating .lot files (%1,%2)")
@@ -283,7 +283,7 @@ bool LotFilesManager::generateCell(WorldCell *cell)
     MapComposite *mapComposite = &staticMapComposite;
     while (mapComposite->waitingForMapsToLoad())
         qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-    mapComposite->generateRoadLayers(QPoint(cell->x() * 300, cell->y() * 300),
+    mapComposite->generateRoadLayers(QPoint(cell->x() * cell->world()->cellSize(), cell->y() * cell->world()->cellSize()),
                                      cell->world()->roads());
 
     foreach (WorldCellLot *lot, cell->lots()) {
@@ -300,13 +300,13 @@ bool LotFilesManager::generateCell(WorldCell *cell)
     // Check for missing tilesets.
     for (MapComposite *mc : mapComposite->maps()) {
         if (mc->map()->hasUsedMissingTilesets()) {
-            QString missingTileSet = QLatin1Literal("");
+            QString missingTileSet = QLatin1String("");
             foreach(Tileset *ts, mc->map()->missingTilesets())
             {
                 foreach(Tileset *tsUsed, mc->map()->usedTilesets())
                 {
                     if (ts->name() == tsUsed->name())
-                        missingTileSet.append(QLatin1Literal("- ") + ts->name() + QLatin1Literal("\n"));
+                        missingTileSet.append(QLatin1String("- ") + ts->name() + QLatin1String("\n"));
                 }
             }
             mError = tr("Some tilesets are missing in a map in cell %1,%2:\n%3\n\nMissing tilesets:\n%4")
@@ -373,7 +373,8 @@ bool LotFilesManager::generateCell(WorldCell *cell)
 
     generateJumboTrees(cell, mapComposite);
 
-    generateHeaderAux(cell, mapComposite);
+    if (!generateHeaderAux(cell, mapComposite))
+        return false;
 
     /////
 
@@ -393,7 +394,7 @@ bool LotFilesManager::generateCell(WorldCell *cell)
     QDataStream out(&file);
     out.setByteOrder(QDataStream::LittleEndian);
 
-    int WorldDiv = CELL_WIDTH / CHUNK_WIDTH;
+    int WorldDiv = mapInfo->width() / CHUNK_WIDTH;
     // C# 'long' is signed 64-bit integer
     out << qint32(WorldDiv * WorldDiv);
     for (int m = 0; m < WorldDiv * WorldDiv; m++)
@@ -672,8 +673,8 @@ bool LotFilesManager::generateChunk(QDataStream &out, WorldCell *cell,
     Q_UNUSED(cell)
     Q_UNUSED(mapComposite)
 
-    int wx = cell->x() * 300 + cx * CHUNK_WIDTH;
-    int wy = cell->y() * 300 + cy * CHUNK_HEIGHT;
+    int wx = cell->x() * cell->world()->cellSize() + cx * CHUNK_WIDTH;
+    int wy = cell->y() * cell->world()->cellSize() + cy * CHUNK_HEIGHT;
 
     int notdonecount = 0;
     for (int z = 0; z < MaxLevel; z++)  {
@@ -805,9 +806,12 @@ void LotFilesManager::generateJumboTrees(WorldCell *cell, MapComposite *mapCompo
         }
     }
 
+    const int mapWidth = mapComposite->map()->width();
+    const int mapHeight = mapComposite->map()->height();
+
     quint8 grid[300][300];
-    for (int y = 0; y < 300; y++) {
-        for (int x = 0; x < 300; x++) {
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
             grid[x][y] = PREVENT_JUMBO;
         }
     }
@@ -838,20 +842,20 @@ void LotFilesManager::generateJumboTrees(WorldCell *cell, MapComposite *mapCompo
                         continue;
                     }
                 }
-                if (x >= 0 && x < 300 && y >= 0 && y < 300) {
+                if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight) {
                     grid[x][y] = JUMBO_ZONE;
                 }
             }
         }
     }
 
-    for (int y = 0; y < 300; y++) {
-        for (int x = 0; x < 300; x++) {
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
             // Prevent jumbo trees near any second-story tiles
             if (!mGridData[x][y][1].Entries.isEmpty()) {
                 for (int yy = y; yy <= y + 4; yy++) {
                     for (int xx = x; xx <= x + 4; xx++) {
-                        if (xx >= 0 && xx < 300 && yy >= 0 && yy < 300)
+                        if (xx >= 0 && xx < mapWidth && yy >= 0 && yy < mapHeight)
                             grid[xx][yy] = PREVENT_JUMBO;
                     }
                 }
@@ -863,7 +867,7 @@ void LotFilesManager::generateJumboTrees(WorldCell *cell, MapComposite *mapCompo
                 if (!floorVegTiles.contains(tile->name)) {
                     for (int yy = y - 1; yy <= y + 1; yy++) {
                         for (int xx = x - 1; xx <= x + 1; xx++) {
-                            if (xx >= 0 && xx < 300 && yy >= 0 && yy < 300)
+                            if (xx >= 0 && xx < mapWidth && yy >= 0 && yy < mapHeight)
                                 grid[xx][yy] = PREVENT_JUMBO;
                         }
                     }
@@ -875,12 +879,12 @@ void LotFilesManager::generateJumboTrees(WorldCell *cell, MapComposite *mapCompo
 
     // Prevent jumbo trees near north/west edges of cells
     for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 300; x++) {
+        for (int x = 0; x < mapWidth; x++) {
             grid[x][y] = PREVENT_JUMBO;
         }
     }
     for (int x = 0; x < 4; x++) {
-        for (int y = 0; y < 300; y++) {
+        for (int y = 0; y < mapHeight; y++) {
             grid[x][y] = PREVENT_JUMBO;
         }
     }
@@ -903,8 +907,8 @@ void LotFilesManager::generateJumboTrees(WorldCell *cell, MapComposite *mapCompo
 
     // Get a list of all tree positions in the cell.
     QList<QPoint> allTreePos;
-    for (int y = 0; y < 300; y++) {
-        for (int x = 0; x < 300; x++) {
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
             foreach (LotFile::Entry *e, mGridData[x][y][0].Entries) {
                 LotFile::Tile *tile = TileMap[e->gid];
                 if (treeTiles.contains(tile->name)) {
@@ -930,15 +934,15 @@ void LotFilesManager::generateJumboTrees(WorldCell *cell, MapComposite *mapCompo
                         continue;
                     int x = treePos.x() + dx;
                     int y = treePos.y() + dy;
-                    if (x >= 0 && x < 300 && y >= 0 && y < 300)
+                    if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight)
                         grid[x][y] = REMOVE_TREE;
                 }
             }
         }
     }
 
-    for (int y = 0; y < 300; y++) {
-        for (int x = 0; x < 300; x++) {
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
             if (grid[x][y] == JUMBO_TREE) {
                 foreach (LotFile::Entry *e, mGridData[x][y][0].Entries) {
                     LotFile::Tile *tile = TileMap[e->gid];
@@ -1094,9 +1098,10 @@ bool LotFilesManager::processObjectGroup(WorldCell *cell, ObjectGroup *objectGro
         y += offset.y();
 
         if (objectGroup->name().contains(QLatin1String("RoomDefs"))) {
-            if (x < 0 || y < 0 || x + w > 300 || y + h > 300) {
-                x = qBound(0, x, 300);
-                y = qBound(0, y, 300);
+            const int cellSize = cell->world()->cellSize();
+            if (x < 0 || y < 0 || x + w > cellSize || y + h > cellSize) {
+                x = qBound(0, x, cellSize);
+                y = qBound(0, y, cellSize);
                 mError = tr("A RoomDef in cell %1,%2 overlaps cell boundaries.\nNear x,y=%3,%4")
                         .arg(cell->x()).arg(cell->y()).arg(x).arg(y);
                 return false;

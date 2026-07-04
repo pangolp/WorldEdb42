@@ -217,8 +217,10 @@ public:
         return screenPolygon;
     }
 
+    void setMinLevel(int level) { Q_UNUSED(level); }
     void setMaxLevel(int level) { mMaxLevel = level; }
     int maxLevel() const { return mMaxLevel; }
+    void setShowInvisibleTiles(bool show) { Q_UNUSED(show); }
 
     bool *mAbortDrawing;
 

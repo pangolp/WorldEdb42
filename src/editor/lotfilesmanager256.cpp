@@ -1026,7 +1026,11 @@ bool LotFilesWorker256::generateCell()
 
     generateJumboTrees(combinedMaps);
 
-    generateHeaderAux(cell256X, cell256Y);
+    if (!generateHeaderAux(cell256X, cell256Y)) {
+        mStatus = Status::Error;
+        mCombinedCellMaps->moveToThread(mCombinedCellMaps->mMapComposite, qApp->thread());
+        return false;
+    }
 
     /////
 
@@ -1063,8 +1067,8 @@ bool LotFilesWorker256::generateCell()
     for (int x = 0; x < CHUNKS_PER_CELL_256; x++) {
         for (int y = 0; y < CHUNKS_PER_CELL_256; y++) {
             PositionMap += file.pos();
-            int chunkX = cell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * CELL_WIDTH + x * CHUNK_SIZE_256;
-            int chunkY = cell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * CELL_HEIGHT + y * CHUNK_SIZE_256;
+            int chunkX = cell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * combinedMaps.mCellSize + x * CHUNK_SIZE_256;
+            int chunkY = cell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * combinedMaps.mCellSize + y * CHUNK_SIZE_256;
             if (generateChunk(out, chunkX, chunkY) == false) {
                 mStatus = Status::Error;
                 mCombinedCellMaps->moveToThread(mCombinedCellMaps->mMapComposite, qApp->thread());
@@ -1166,8 +1170,8 @@ bool LotFilesWorker256::generateHeader(CombinedCellMaps& combinedMaps, MapCompos
 
     // Merge adjacent RoomRects on the same level into rooms.
     // Only RoomRects with matching names and with # in the name are merged.
-    QPoint relativeToCell256(-(combinedMaps.mCell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * CELL_WIDTH),
-                            -(combinedMaps.mCell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * CELL_HEIGHT));
+    QPoint relativeToCell256(-(combinedMaps.mCell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * combinedMaps.mCellSize),
+                            -(combinedMaps.mCell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * combinedMaps.mCellSize));
     for (int level : mRoomRectByLevel.keys()) {
         QList<LotFile::RoomRect*> rrList = mRoomRectByLevel[level];
         // Use spatial partitioning to speed up the code below.
@@ -1397,7 +1401,7 @@ bool LotFilesWorker256::generateHeaderAux(int cell256X, int cell256Y)
     }
 
     zombieSpawnMapBounds = QRect(lotSettings.worldOrigin.x() * CELL_WIDTH, lotSettings.worldOrigin.y() * CELL_HEIGHT, ZombieSpawnMap.width() * CHUNK_WIDTH, ZombieSpawnMap.height() * CHUNK_HEIGHT);
-    combinedMapBounds = QRect(mCombinedCellMaps->mMinCell300X * CELL_WIDTH, mCombinedCellMaps->mMinCell300Y * CELL_HEIGHT, mCombinedCellMaps->mCellsWidth * CELL_WIDTH, mCombinedCellMaps->mCellsHeight * CELL_HEIGHT);
+    combinedMapBounds = QRect(mCombinedCellMaps->mMinCell300X * mCombinedCellMaps->mCellSize, mCombinedCellMaps->mMinCell300Y * mCombinedCellMaps->mCellSize, mCombinedCellMaps->mCellsWidth * mCombinedCellMaps->mCellSize, mCombinedCellMaps->mCellsHeight * mCombinedCellMaps->mCellSize);
     QRect combinedMapBounds256(cell256X * CELL_SIZE_256, cell256Y * CELL_SIZE_256, CELL_SIZE_256, CELL_SIZE_256);
     QRect validSquares = zombieSpawnMapBounds & combinedMapBounds256;
     QPoint p1 = combinedMapBounds256.topLeft();
@@ -1581,8 +1585,8 @@ void LotFilesWorker256::generateJumboTrees(CombinedCellMaps& combinedMaps)
 
     PropertyDef *JumboDensity = mWorldDoc->world()->propertyDefinition(QStringLiteral("JumboDensity"));
 
-    QRect cellBounds256(combinedMaps.mCell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * CELL_WIDTH,
-                        combinedMaps.mCell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * CELL_HEIGHT,
+    QRect cellBounds256(combinedMaps.mCell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * combinedMaps.mCellSize,
+                        combinedMaps.mCell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * combinedMaps.mCellSize,
                         CELL_SIZE_256, CELL_SIZE_256);
 
     ClipperLib::Path zonePath;
@@ -1764,8 +1768,29 @@ void LotFilesWorker256::generateChunkData()
         }
     }
     const GenerateLotsSettings &lotSettings = mWorldDoc->world()->getGenerateLotsSettings();
-    Navigate::ChunkDataFile256 cdf;
-    cdf.fromMap(*mCombinedCellMaps, mCombinedCellMaps->mMapComposite, mRoomRectLookup, lotSettings);
+    {
+        int cell256X = mCombinedCellMaps->mCell256X;
+        int cell256Y = mCombinedCellMaps->mCell256Y;
+        QString filePath = lotSettings.exportDir + QString::fromLatin1("/chunkdata_%1_%2.bin")
+                               .arg(cell256X).arg(cell256Y);
+        QFile chunkFile(filePath);
+        if (chunkFile.open(QIODevice::WriteOnly)) {
+            QDataStream cout(&chunkFile);
+            cout << qint16(1); // FILE_VERSION
+            const quint8 REGULAR_CHUNK = 2;
+            const quint8 DEFAULT_BITS = 4;
+            for (int yy = 0; yy < CHUNKS_PER_CELL_256; yy++) {
+                for (int xx = 0; xx < CHUNKS_PER_CELL_256; xx++) {
+                    cout << REGULAR_CHUNK;
+                    for (int i = 0; i < CHUNK_SIZE_256 * CHUNK_SIZE_256; i++)
+                        cout << DEFAULT_BITS;
+                }
+            }
+            chunkFile.close();
+        } else {
+            qDebug() << "generateChunkData: failed to open" << filePath;
+        }
+    }
 }
 
 void LotFilesWorker256::clearRemovedBuildingsList()
@@ -1878,8 +1903,8 @@ bool LotFilesWorker256::processObjectGroup(CombinedCellMaps &combinedMaps, World
 
     // Align with the 256x256 cell.
     QPoint offset1 = offset;
-    offset1.rx() -= combinedMaps.mCell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * CELL_WIDTH;
-    offset1.ry() -= combinedMaps.mCell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * CELL_HEIGHT;
+    offset1.rx() -= combinedMaps.mCell256X * CELL_SIZE_256 - combinedMaps.mMinCell300X * combinedMaps.mCellSize;
+    offset1.ry() -= combinedMaps.mCell256Y * CELL_SIZE_256 - combinedMaps.mMinCell300Y * combinedMaps.mCellSize;
 
     for (const MapObject *mapObject : objectGroup->objects()) {
 #if 0

@@ -274,5 +274,5 @@ void MapsView::onActivated(const QModelIndex &index)
         return;
     }
     if (fileInfo.suffix() == QLatin1String("pzw"))
-        MainWindow::instance()->openFile(fileInfo.canonicalFilePath(),0);
+        MainWindow::instance()->openFile(fileInfo.canonicalFilePath());
 }

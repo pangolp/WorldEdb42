@@ -13,7 +13,7 @@ greaterThan(QT_MAJOR_VERSION, 5) {
 }
 
 # MSVC
-win32 {
+msvc {
     QMAKE_CFLAGS_RELEASE += -Zi
     QMAKE_CXXFLAGS_RELEASE += -Zi
     QMAKE_LFLAGS_RELEASE += /DEBUG /OPT:REF
@@ -72,7 +72,7 @@ SOURCES += main.cpp\
     InGameMap/ingamemapcell.cpp \
     InGameMap/ingamemapdock.cpp \
     InGameMap/ingamemapfeaturegenerator.cpp \
-    InGameMap/ingamemapimagedialog.cpp \
+#   InGameMap/ingamemapimagedialog.cpp \
     InGameMap/ingamemapimagepyramidwindow.cpp \
     InGameMap/ingamemappropertiesform.cpp \
     InGameMap/ingamemappropertydialog.cpp \
@@ -82,10 +82,10 @@ SOURCES += main.cpp\
     InGameMap/ingamemapwriter.cpp \
     InGameMap/ingamemapwriterbinary.cpp \
     navigation/chunkdatafile256.cpp \
-    navigation/isochunk256.cpp \
+#   navigation/isochunk256.cpp \
     navigation/isogridsquare256.cpp \
-    pngzonesdialog.cpp \
-    tiledeftextfile.cpp \
+#   pngzonesdialog.cpp \
+#   tiledeftextfile.cpp \
     tilesetstxtfile.cpp \
     worldview.cpp \
     worldscene.cpp \
@@ -106,7 +106,7 @@ SOURCES += main.cpp\
     mapmanager.cpp \
     basegraphicsview.cpp \
     progress.cpp \
-    writeroomtonesdialog.cpp \
+#   writeroomtonesdialog.cpp \
     zoomable.cpp \
     scenetools.cpp \
     worldwriter.cpp \
@@ -202,10 +202,10 @@ HEADERS  += mainwindow.h \
     logger.h \
     lotfilesmanager256.h \
     navigation/chunkdatafile256.h \
-    navigation/isochunk256.h \
+#   navigation/isochunk256.h \
     navigation/isogridsquare256.h \
     pngzonesdialog.h \
-    tiledeftextfile.h \
+#   tiledeftextfile.h \
     tilesetstxtfile.h \
     worldconstants.h \
     worldview.h \
@@ -302,14 +302,14 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     biomemapgenerator.ui \
-    exportlotsprogressdialog.ui \
+#   exportlotsprogressdialog.ui \
     generatelotsfailuredialog.ui \
-    InGameMap/ingamemapimagedialog.ui \
+#   InGameMap/ingamemapimagedialog.ui \
     InGameMap/ingamemapimagepyramidwindow.ui \
     InGameMap/ingamemappropertiesform.ui \
     InGameMap/ingamemappropertydialog.ui \
     loadthumbnailsdialog.ui \
-    pngzonesdialog.ui \
+#   pngzonesdialog.ui \
     propertiesview.ui \
     propertiesdialog.ui \
     templatesdialog.ui \
@@ -328,7 +328,7 @@ FORMS    += mainwindow.ui \
     gotodialog.ui \
     spawntooldialog.ui \
     propertyenumdialog.ui \
-    writeroomtonesdialog.ui \
+#   writeroomtonesdialog.ui \
     writespawnpointsdialog.ui \
     pngbuildingdialog.ui \
     lootwindow.ui \

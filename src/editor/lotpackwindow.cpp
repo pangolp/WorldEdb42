@@ -794,7 +794,7 @@ void LotPackWindow::closeWorld()
 void LotPackWindow::saveScreenshot()
 {
     //Uses Qpixmap::grabWidget function to create a pixmap and paints the QGraphicsView inside it.
-    QPixmap pixMap = QPixmap::grabWidget(mView);
+    QPixmap pixMap = mView->grab();
     char buf[256];
     sprintf(buf, "screenshot_%i_%i.png", mView->mTilePos.x(), mView->mTilePos.y());
     QString fileName = QString::fromUtf8(buf);

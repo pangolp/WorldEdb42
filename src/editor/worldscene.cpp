@@ -625,6 +625,12 @@ void WorldScene::setShowZonesInWorldView(bool show)
     update();
 }
 
+void WorldScene::setShowZonesWorldInWorldView(bool show)
+{
+    Q_UNUSED(show)
+    update();
+}
+
 void WorldScene::selectedRoadsChanged()
 {
     const QList<Road*> &selection = worldDocument()->selectedRoads();
@@ -919,8 +925,9 @@ void WorldScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
             if (size.isEmpty())
                 continue;
             QPoint center = pixelToCellCoordsInt(event->scenePos());
-            int width = size.width() / 300;
-            int height = size.height() / 300;
+            int cellSize = world()->cellSize();
+            int width = size.width() / cellSize;
+            int height = size.height() / cellSize;
             int x = center.x() - width / 2;
             int y = center.y() - height / 2;
             WorldBMP *bmp = new WorldBMP(world(), x, y, width, height, info.canonicalFilePath());

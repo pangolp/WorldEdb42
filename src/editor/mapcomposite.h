@@ -294,7 +294,13 @@ public:
     void setGroupVisible(bool visible) { mGroupVisible = visible; }
     bool isGroupVisible() const { return mGroupVisible; }
 
+    int minLevel() const { return mMinLevel; }
     int maxLevel() const { return mMaxLevel; }
+    void checkMinMaxLevels(int minLevel, int maxLevel)
+    {
+        if (minLevel < mMinLevel) mMinLevel = minLevel;
+        if (maxLevel > mMaxLevel) mMaxLevel = maxLevel;
+    }
 
     QPoint orientAdjustPos() const { return mOrientAdjustPos; }
     QPoint orientAdjustTiles() const { return mOrientAdjustTiles; }
@@ -395,6 +401,8 @@ public:
 
     int changeCount() const
     { return mChangeCount; }
+
+    void setLotFilesManagerMap(bool b) { Q_UNUSED(b); }
 
 signals:
     void layerGroupAdded(int level);

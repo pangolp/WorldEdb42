@@ -34,3 +34,8 @@ QSize NewWorldDialog::worldSize() const
 {
     return QSize(ui->widthSpinBox->value(), ui->heightSpinBox->value());
 }
+
+int NewWorldDialog::cellSize() const
+{
+    return ui->cellSizeSpinBox->value();
+}

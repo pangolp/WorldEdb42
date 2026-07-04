@@ -339,6 +339,26 @@ int LotHeader::getRoomAt(int x, int y, int z)
 /////
 
 QMap<QString,LotHeader*> IsoLot::InfoHeaders;
+QMap<QString,LotHeader*> IsoLot::CellCoordToLotHeader;
+
+bool IsoLot::getMapDirectoryChunkSize(const QString &directory, int &chunkWidth, int &chunkHeight)
+{
+    QDir dir(directory);
+    const QStringList filters = { QStringLiteral("*.lotpack") };
+    const QStringList files = dir.entryList(filters, QDir::Files);
+    if (files.isEmpty()) {
+        chunkWidth = chunkHeight = 10;
+        return false;
+    }
+    chunkWidth = chunkHeight = 10;
+    for (const QString &file : files) {
+        if (file.contains(QStringLiteral("_8_"))) {
+            chunkWidth = chunkHeight = 8;
+            break;
+        }
+    }
+    return true;
+}
 
 IsoLot::IsoLot(QString directory, int cX, int cY, int wX, int wY, IsoChunk *ch)
 {
@@ -903,6 +923,14 @@ IsoWorld::IsoWorld(const QString &path) :
     MetaGrid(new IsoMetaGrid),
     CurrentCell(0),
     Directory(path)
+{
+}
+
+IsoWorld::IsoWorld(const QString &path, IsoConstants constants) :
+    MetaGrid(new IsoMetaGrid(constants)),
+    CurrentCell(0),
+    Directory(path),
+    isoConstants(constants)
 {
 }
 

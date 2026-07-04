@@ -40,7 +40,7 @@
 
 #include "isometricrenderer.h"
 #include "map.h"
-#include "maplevel.h"
+//#include "maplevel.h"
 #include "mapobject.h"
 #include "objectgroup.h"
 #include "tile.h"
@@ -216,7 +216,8 @@ void CellMiniMapItem::updateLotImage(int index)
 
 void CellMiniMapItem::updateBoundingRect()
 {
-    QRectF bounds = mScene->renderer()->boundingRect(QRect(0, 0, 300, 300));
+    int cs = mScene->world()->cellSize();
+    QRectF bounds = mScene->renderer()->boundingRect(QRect(0, 0, cs, cs));
 
     if (!mMapImageBounds.isEmpty())
         bounds |= mMapImageBounds;
@@ -866,8 +867,8 @@ void LayerGroupVBO::paint2(QPainter *painter, Tiled::MapRenderer *renderer, cons
                 {
                     if (vboTiles->mBounds.contains(square.x(), square.y()) == false)
                         continue;
-                    int x = (square.x() + 300) % VBO_SQUARES;
-                    int y = (square.y() + 300) % VBO_SQUARES;
+                    int x = (square.x() - vboTiles->mBounds.x()) % VBO_SQUARES;
+                    int y = (square.y() - vboTiles->mBounds.y()) % VBO_SQUARES;
                     if (tileFirst[x + y * VBO_SQUARES] == -1)
                         continue;
                     for (int i = tileFirst[x+y*VBO_SQUARES], n = i + tileCount[x+y*VBO_SQUARES]; i < n; i++) {
@@ -1216,8 +1217,8 @@ VBOTiles *LayerGroupVBO::getTilesFor(const QPoint &square, bool bCreate)
     if (mMapCompositeVBO->mBounds.contains(square) == false)
         return nullptr;
 
-    int col = ((square.x() + 300) % 300) / VBO_SQUARES;
-    int row = ((square.y() + 300) % 300) / VBO_SQUARES;
+    int col = (square.x() - mMapCompositeVBO->mBounds.x()) / VBO_SQUARES;
+    int row = (square.y() - mMapCompositeVBO->mBounds.y()) / VBO_SQUARES;
     if (col < 0 || col >= VBO_PER_CELL || row < 0 || row >= VBO_PER_CELL) {
         return nullptr;
     }
@@ -1444,7 +1445,8 @@ exposed = QRect(); // FIXME: flush area covered by whole VBOTiles
                 MapCompositeVBO *mcVBO = mScene->mapCompositeVBO(x + y * 3);
                 if (mVBO[x + y * 3] == nullptr) {
                     mcVBO->mMapComposite = mc;
-                    mcVBO->mBounds = QRect((x - 1) * 300, (y - 1) * 300, 300, 300);
+                    int cs = mScene->world()->cellSize();
+                    mcVBO->mBounds = QRect((x - 1) * cs, (y - 1) * cs, cs, cs);
     //                if (mcVBO->mScene == nullptr)
                         mcVBO->mScene = mScene;
                     mVBO[x + y * 3] = mcVBO->getLayerVBO(this);
@@ -4300,7 +4302,8 @@ void SubMapItem::checkValidPos()
                 QRect roomRect(x, y, w, h);
                 roomRect.translate(mLot->pos());
 
-                if (!QRect(0, 0, 300, 300).contains(roomRect)) {
+                int cs = mLot->cell()->world()->cellSize();
+                if (!QRect(0, 0, cs, cs).contains(roomRect)) {
                     mIsValidPos = false;
                     return;
                 }
@@ -4997,6 +5000,7 @@ void CellScene::keyPressEvent(QKeyEvent *event)
     QGraphicsScene::keyPressEvent(event);
 }
 
+#if 0
 static int calculateLayerInsertIndex(MapLevel *mapLevel, TileLayer *layer, const QStringList &defaultLayerNames)
 {
     int index1 = defaultLayerNames.indexOf(layer->name());
@@ -5030,6 +5034,7 @@ static int calculateLayerInsertIndex(MapLevel *mapLevel, TileLayer *layer, const
 #endif
     return mapLevel->layerCount();
 }
+#endif // #if 0 for calculateLayerInsertIndex
 
 void CellScene::loadMap()
 {
@@ -5074,12 +5079,12 @@ void CellScene::loadMap()
     PROGRESS progress(tr("Loading cell %1,%2").arg(cell()->x()).arg(cell()->y()));
 
     if (cell()->mapFilePath().isEmpty())
-        mMapInfo = MapManager::instance()->getEmptyMap();
+        mMapInfo = MapManager::instance()->getEmptyMap(world()->cellSize());
     else {
         mMapInfo = MapManager::instance()->loadMap(cell()->mapFilePath());
         if (!mMapInfo) {
             qDebug() << "failed to load cell map" << cell()->mapFilePath();
-            mMapInfo = MapManager::instance()->getPlaceholderMap(cell()->mapFilePath(), 300, 300);
+            mMapInfo = MapManager::instance()->getPlaceholderMap(cell()->mapFilePath(), world()->cellSize(), world()->cellSize());
         }
     }
     if (!mMapInfo) {
@@ -5091,7 +5096,7 @@ void CellScene::loadMap()
 
     mMap = mMapInfo->map();
 
-#if 1
+#if 0
     // Add any missing default tile layers so the user can hide/show them in the Layers Dock.
     // FIXME: mMap is shared, is this safe?
     for (int level = MIN_WORLD_LEVEL; level <= MAX_WORLD_LEVEL; level++) {
@@ -5183,7 +5188,7 @@ void CellScene::loadMap()
 
     updateCurrentLevelHighlight();
 
-    mMapComposite->generateRoadLayers(QPoint(cell()->x()*300, cell()->y()*300),
+    mMapComposite->generateRoadLayers(QPoint(cell()->x() * world()->cellSize(), cell()->y() * world()->cellSize()),
                                       world()->roads());
 
     mMapBuildingsInvalid = true;
@@ -5912,7 +5917,7 @@ void CellScene::selectedRoadsChanged()
 
 void CellScene::roadsChanged()
 {
-    mMapComposite->generateRoadLayers(QPoint(cell()->x() * 300, cell()->y() * 300),
+    mMapComposite->generateRoadLayers(QPoint(cell()->x() * world()->cellSize(), cell()->y() * world()->cellSize()),
                                       world()->roads());
     if (mMapComposite->tileLayersForLevel(0))
         if (mTileLayerGroupItems.contains(0))
@@ -6256,12 +6261,12 @@ void CellScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 QPoint CellScene::pixelToRoadCoords(qreal x, qreal y) const
 {
     QPoint tileCoords = mRenderer->pixelToTileCoordsInt(QPointF(x, y));
-    return tileCoords + QPoint(cell()->x() * 300, cell()->y() * 300);
+    return tileCoords + QPoint(cell()->x() * world()->cellSize(), cell()->y() * world()->cellSize());
 }
 
 QPointF CellScene::roadToSceneCoords(const QPoint &pt) const
 {
-    QPoint tileCoords = pt - QPoint(cell()->x() * 300, cell()->y() * 300);
+    QPoint tileCoords = pt - QPoint(cell()->x() * world()->cellSize(), cell()->y() * world()->cellSize());
     return mRenderer->tileToPixelCoords(tileCoords);
 }
 
@@ -6859,7 +6864,8 @@ void AdjacentMap::sceneRectChanged()
     int x = cell()->x() - scene()->cell()->x();
     int y = cell()->y() - scene()->cell()->y();
     QRectF r = scene()->renderer()->boundingRect(QRect(0, 0, 1, 1));
-    QPointF offset((x - y) * (300 * r.width() / 2), (x + y) * (300 * r.height() / 2));
+    int cs = cell()->world()->cellSize();
+    QPointF offset((x - y) * (cs * r.width() / 2), (x + y) * (cs * r.height() / 2));
     mObjectItemParent->setPos(offset);
 
     foreach (ObjectItem *item, mObjectItems)
@@ -6874,7 +6880,7 @@ void AdjacentMap::sceneRectChanged()
 void AdjacentMap::loadMap()
 {
     if (cell()->mapFilePath().isEmpty()) {
-        mMapInfo = MapManager::instance()->getEmptyMap();
+        mMapInfo = MapManager::instance()->getEmptyMap(cell()->world()->cellSize());
     } else {
         mMapInfo = MapManager::instance()->loadMap(cell()->mapFilePath(), QString(), true,
                                                    MapManager::PriorityMedium);

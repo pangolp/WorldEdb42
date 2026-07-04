@@ -1773,8 +1773,7 @@ QVector<QRect> BuildingFloor::roomRegion(Room *room)
 
     // Clean up the region by merging vertically-adjacent rectangles of the
     // same width.
-    //QVector<QRect> rects(region.begin(), region.end());
-    QVector<QRect> rects(region.rects());
+    QVector<QRect> rects(region.begin(), region.end());
     for (int i = 0; i < rects.size(); i++) {
         QRect r = rects[i];
         if (!r.isValid()) continue;

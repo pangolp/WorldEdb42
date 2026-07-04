@@ -160,11 +160,9 @@ void LightSwitchOverlays::update()
     }
 
     QStringList rooms = LightbulbsMgr::instance().rooms();
-    //QSet<QString> ignoreRooms(rooms.begin(), rooms.end());
-    QSet<QString> ignoreRooms(rooms.toSet());
+    QSet<QString> ignoreRooms(rooms.begin(), rooms.end());
     QStringList buildings = LightbulbsMgr::instance().maps();
-    //QSet<QString> ignoreBuildings(buildings.begin(), buildings.end());
-    QSet<QString> ignoreBuildings(buildings.toSet());
+    QSet<QString> ignoreBuildings(buildings.begin(), buildings.end());
 
     mMapBuildings = mScene->mMapBuildings;
     foreach (MapBuildingsNS::Building *building, mMapBuildings->buildings()) {

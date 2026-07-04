@@ -75,6 +75,9 @@ public:
      */
     const QString &name() const { return mName; }
 
+    QString nameWithPrefix() const
+    { return QString::fromLatin1("%1_%2").arg(mLevel).arg(mName); }
+
     /**
      * Sets the name of this layer.
      */

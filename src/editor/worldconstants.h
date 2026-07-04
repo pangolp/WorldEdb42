@@ -21,4 +21,20 @@
 // Cell-size constants are defined in lotfilesmanager.h (300-tile B41 cells)
 // and lotfilesmanager256.h (256-tile B42 cells).
 
+#ifndef WORLD_GROUND_LEVEL
+#define WORLD_GROUND_LEVEL 8
+#endif
+
+#ifndef MIN_WORLD_LEVEL
+#define MIN_WORLD_LEVEL -8
+#endif
+
+#ifndef MAX_WORLD_LEVEL
+#define MAX_WORLD_LEVEL 7
+#endif
+
+#ifndef MAX_WORLD_LEVELS
+#define MAX_WORLD_LEVELS 16
+#endif
+
 #endif // WORLDCONSTANTS_H
