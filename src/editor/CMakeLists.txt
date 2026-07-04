@@ -221,3 +221,12 @@ foreach(DATA_FILE ${PZWORLDED_DATA_FILES})
         COMMENT "Copying ${DATA_FILE} to output directory"
     )
 endforeach()
+
+# Copy the theme/ directory (QSS stylesheets + images) next to the executable.
+# The app loads themes from currentPath()/theme/ at runtime.
+add_custom_command(TARGET PZWorldEd POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/theme"
+        "$<TARGET_FILE_DIR:PZWorldEd>/theme"
+    COMMENT "Copying theme/ directory to output directory"
+)
