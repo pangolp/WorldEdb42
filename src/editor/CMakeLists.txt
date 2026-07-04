@@ -199,3 +199,25 @@ endif()
 if(APPLE)
     set_target_properties(PZWorldEd PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
+
+# Copy runtime data files next to the executable after every build.
+# $<TARGET_FILE_DIR:PZWorldEd> resolves correctly for all configs
+# (Debug/Release/MinSizeRel/RelWithDebInfo) with multi-config generators.
+set(PZWORLDED_DATA_FILES
+    Roads.txt
+    Rules.txt
+    Blends.txt
+    MapBaseXML.txt
+    MapToPNG.txt
+    WorldDefaults.txt
+    mapScripts.lua
+)
+
+foreach(DATA_FILE ${PZWORLDED_DATA_FILES})
+    add_custom_command(TARGET PZWorldEd POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/${DATA_FILE}"
+            "$<TARGET_FILE_DIR:PZWorldEd>/${DATA_FILE}"
+        COMMENT "Copying ${DATA_FILE} to output directory"
+    )
+endforeach()
