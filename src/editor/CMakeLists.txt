@@ -230,3 +230,22 @@ add_custom_command(TARGET PZWorldEd POST_BUILD
         "$<TARGET_FILE_DIR:PZWorldEd>/theme"
     COMMENT "Copying theme/ directory to output directory"
 )
+
+# On Windows: run windeployqt to copy Qt DLLs, plugins and translations.
+# windeployqt is located in the same bin/ folder as the Qt DLLs.
+if(WIN32)
+    get_target_property(_qt_core_loc Qt6::Core LOCATION)
+    get_filename_component(_qt_bin_dir "${_qt_core_loc}" DIRECTORY)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+
+    if(WINDEPLOYQT_EXECUTABLE)
+        add_custom_command(TARGET PZWorldEd POST_BUILD
+            COMMAND "${WINDEPLOYQT_EXECUTABLE}"
+                "$<TARGET_FILE:PZWorldEd>"
+            COMMENT "Running windeployqt to deploy Qt runtime..."
+        )
+    else()
+        message(WARNING "windeployqt not found — Qt DLLs will not be copied automatically. "
+                        "Run windeployqt manually on the output executable before distributing.")
+    endif()
+endif()
