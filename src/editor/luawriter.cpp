@@ -315,14 +315,14 @@ public:
             foreach (WorldCellObject *obj, spawnByProfession[profession]) {
                 w.writeStartTable();
                 w.setSuppressNewlines(true);
-                // worldX/posX use the world's own cellSize (256 for B42, 300 for B41).
                 int cellSz = mWorld->cellSize();
                 int absX   = (obj->cell()->x() + origin.x()) * cellSz + (int)obj->x();
                 int absY   = (obj->cell()->y() + origin.y()) * cellSz + (int)obj->y();
-                w.writeKeyAndValue("worldX", absX / cellSz);
-                w.writeKeyAndValue("worldY", absY / cellSz);
-                w.writeKeyAndValue("posX",   absX % cellSz);
-                w.writeKeyAndValue("posY",   absY % cellSz);
+                // The game always reads worldX * 300 + posX regardless of build.
+                w.writeKeyAndValue("worldX", absX / 300);
+                w.writeKeyAndValue("worldY", absY / 300);
+                w.writeKeyAndValue("posX",   absX % 300);
+                w.writeKeyAndValue("posY",   absY % 300);
                 w.writeKeyAndValue("posZ", obj->level());
 
                 PropertyList properties;
