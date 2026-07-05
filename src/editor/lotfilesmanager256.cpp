@@ -1160,7 +1160,7 @@ bool LotFilesWorker256::generateHeader(CombinedCellMaps& combinedMaps, MapCompos
 
     for (WorldCell *cell : combinedMaps.mCells) {
         for (MapComposite *subMap : mapComposite->subMaps()) {
-            if (subMap->origin() != (cell->pos() + lotSettings.worldOrigin - QPoint(combinedMaps.mMinCell300X,combinedMaps.mMinCell300Y)) * 300)
+            if (subMap->origin() != (cell->pos() + lotSettings.worldOrigin - QPoint(combinedMaps.mMinCell300X,combinedMaps.mMinCell300Y)) * combinedMaps.mCellSize)
                 continue;
             if (processObjectGroups(combinedMaps, cell, subMap) == false) {
                 return false;

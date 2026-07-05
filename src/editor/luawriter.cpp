@@ -217,6 +217,7 @@ public:
     void writeObject(WorldCellObject *obj)
     {
         QPoint origin = mWorld->getGenerateLotsSettings().worldOrigin;
+        const int cellSz = mWorld->cellSize();
 
         w->writeStartTable();
         w->setSuppressNewlines(true);
@@ -224,8 +225,8 @@ public:
             w->writeKeyAndValue("name", obj->name());
         w->writeKeyAndValue("type", obj->type()->name());
         if (obj->geometryType() == ObjectGeometryType::INVALID) {
-            w->writeKeyAndValue("x", (obj->cell()->x() + origin.x()) * 300 + obj->x());
-            w->writeKeyAndValue("y", (obj->cell()->y() + origin.y()) * 300 + obj->y());
+            w->writeKeyAndValue("x", (obj->cell()->x() + origin.x()) * cellSz + obj->x());
+            w->writeKeyAndValue("y", (obj->cell()->y() + origin.y()) * cellSz + obj->y());
             w->writeKeyAndValue("level", obj->level());
             w->writeKeyAndValue("width", obj->width());
             w->writeKeyAndValue("height", obj->height());
@@ -255,8 +256,8 @@ public:
             w2.setSuppressNewlines(true);
             w2.writeStartTable();
             for (const auto &point : obj->points()) {
-                w2.writeValue((obj->cell()->x() + origin.x()) * 300 + point.x);
-                w2.writeValue((obj->cell()->x() + origin.x()) * 300 + point.y);
+                w2.writeValue((obj->cell()->x() + origin.x()) * cellSz + point.x);
+                w2.writeValue((obj->cell()->x() + origin.x()) * cellSz + point.y);
             }
             w2.writeEndTable();
             buf.close();
@@ -354,6 +355,7 @@ public:
         w.writeStartTable("objects");
 
         QPoint origin = mWorld->getGenerateLotsSettings().worldOrigin;
+        const int cellSz = mWorld->cellSize();
 
         for (int y = 0; y < mWorld->height(); y++) {
             for (int x = 0; x < mWorld->width(); x++) {
@@ -364,8 +366,8 @@ public:
                     w.writeKeyAndValue("name", obj->name());
                     w.writeKeyAndValue("type", obj->type()->name());
                     if (obj->geometryType() == ObjectGeometryType::INVALID) {
-                        w.writeKeyAndValue("x", (obj->cell()->x() + origin.x()) * 300 + obj->x());
-                        w.writeKeyAndValue("y", (obj->cell()->y() + origin.y()) * 300 + obj->y());
+                        w.writeKeyAndValue("x", (obj->cell()->x() + origin.x()) * cellSz + obj->x());
+                        w.writeKeyAndValue("y", (obj->cell()->y() + origin.y()) * cellSz + obj->y());
                         w.writeKeyAndValue("z", obj->level());
                         w.writeKeyAndValue("width", obj->width());
                         w.writeKeyAndValue("height", obj->height());
@@ -396,8 +398,8 @@ public:
                         w2.writeStartTable();
                         QString pointStr;
                         for (const auto &point : obj->points()) {
-                            w2.writeValue((obj->cell()->x() + origin.x()) * 300 + point.x);
-                            w2.writeValue((obj->cell()->y() + origin.y()) * 300 + point.y);
+                            w2.writeValue((obj->cell()->x() + origin.x()) * cellSz + point.x);
+                            w2.writeValue((obj->cell()->y() + origin.y()) * cellSz + point.y);
                         }
                         w2.writeEndTable();
                         buf.close();

@@ -1348,7 +1348,7 @@ void LayerGroupVBO::aboutToBeDestroyed()
 MapCompositeVBO::MapCompositeVBO()
 {
     mLayerVBOs.fill(nullptr);
-    mBounds = QRect(0, 0, 300, 300);
+    mBounds = QRect(); // overwritten before use at CompositeLayerGroupItem::paint
 }
 
 MapCompositeVBO::~MapCompositeVBO()
@@ -5113,7 +5113,8 @@ void CellScene::loadMap()
                 mapLevel = new MapLevel(mMap, level);
                 mMap->addMapLevel(mapLevel);
             }
-            TileLayer* layer = new TileLayer(withoutPrefix, 0, 0, 300, 300);
+            const int cs = world()->cellSize();
+            TileLayer* layer = new TileLayer(withoutPrefix, 0, 0, cs, cs);
             layer->setLevel(level);
             int index = calculateLayerInsertIndex(mapLevel, layer, defaultLayerNames);
             mapLevel->insertLayer(index, layer);

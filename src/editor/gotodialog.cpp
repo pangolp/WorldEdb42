@@ -34,9 +34,10 @@ GoToDialog::GoToDialog(World *world, const QPoint &initial, QWidget *parent) :
     ui->setupUi(this);
 
     QPoint worldOrigin = world->getGenerateLotsSettings().worldOrigin;
+    const int cellSz = world->cellSize();
 
-    ui->worldX->setRange(worldOrigin.x() * 300, (worldOrigin.x() + world->width()) * 300);
-    ui->worldY->setRange(worldOrigin.y() * 300, (worldOrigin.y() + world->height()) * 300);
+    ui->worldX->setRange(worldOrigin.x() * cellSz, (worldOrigin.x() + world->width()) * cellSz);
+    ui->worldY->setRange(worldOrigin.y() * cellSz, (worldOrigin.y() + world->height()) * cellSz);
 
     ui->rangeX->setText(tr("Min: %1    Max: %2").arg(ui->worldX->minimum()).arg(ui->worldX->maximum()));
     ui->rangeY->setText(tr("Min: %1    Max: %2").arg(ui->worldY->minimum()).arg(ui->worldY->maximum()));
@@ -44,17 +45,17 @@ GoToDialog::GoToDialog(World *world, const QPoint &initial, QWidget *parent) :
     ui->cellX->setRange(worldOrigin.x(), worldOrigin.x() + world->width() - 1);
     ui->cellY->setRange(worldOrigin.y(), worldOrigin.y() + world->height() - 1);
 
-    ui->posX->setRange(0, 299);
-    ui->posY->setRange(0, 299);
+    ui->posX->setRange(0, cellSz - 1);
+    ui->posY->setRange(0, cellSz - 1);
 
     mSynching++;
-    QPoint p = worldOrigin * 300 + initial;
+    QPoint p = worldOrigin * cellSz + initial;
     ui->worldX->setValue(p.x());
     ui->worldY->setValue(p.y());
-    ui->cellX->setValue(qFloor(p.x() / 300));
-    ui->cellY->setValue(qFloor(p.y() / 300));
-    ui->posX->setValue(NMOD(p.x(), 300.0));
-    ui->posY->setValue(NMOD(p.y(), 300.0));
+    ui->cellX->setValue(qFloor(p.x() / cellSz));
+    ui->cellY->setValue(qFloor(p.y() / cellSz));
+    ui->posX->setValue(NMOD(p.x(), (double)cellSz));
+    ui->posY->setValue(NMOD(p.y(), (double)cellSz));
     mSynching--;
 
     connect(ui->worldX, qOverload<int>(&QSpinBox::valueChanged), this, &GoToDialog::worldXChanged);
@@ -72,20 +73,21 @@ GoToDialog::~GoToDialog()
 
 int GoToDialog::worldX() const
 {
-    return ui->worldX->value() - mWorld->getGenerateLotsSettings().worldOrigin.x() * 300;
+    return ui->worldX->value() - mWorld->getGenerateLotsSettings().worldOrigin.x() * mWorld->cellSize();
 }
 
 int GoToDialog::worldY() const
 {
-    return ui->worldY->value() - mWorld->getGenerateLotsSettings().worldOrigin.y() * 300;
+    return ui->worldY->value() - mWorld->getGenerateLotsSettings().worldOrigin.y() * mWorld->cellSize();
 }
 
 void GoToDialog::worldXChanged(int val)
 {
     if (mSynching) return;
     mSynching++;
-    ui->cellX->setValue(qFloor(val / 300.0));
-    ui->posX->setValue(NMOD(val, 300.0));
+    const int cellSz = mWorld->cellSize();
+    ui->cellX->setValue(qFloor(val / (double)cellSz));
+    ui->posX->setValue(NMOD(val, (double)cellSz));
     mSynching--;
 }
 
@@ -93,8 +95,9 @@ void GoToDialog::worldYChanged(int val)
 {
     if (mSynching) return;
     mSynching++;
-    ui->cellY->setValue(qFloor(val / 300.0));
-    ui->posY->setValue(NMOD(val, 300.0));
+    const int cellSz = mWorld->cellSize();
+    ui->cellY->setValue(qFloor(val / (double)cellSz));
+    ui->posY->setValue(NMOD(val, (double)cellSz));
     mSynching--;
 }
 
@@ -102,7 +105,7 @@ void GoToDialog::cellXChanged(int val)
 {
     if (mSynching) return;
     mSynching++;
-    ui->worldX->setValue(val * 300 + ui->posX->value());
+    ui->worldX->setValue(val * mWorld->cellSize() + ui->posX->value());
     mSynching--;
 }
 
@@ -110,7 +113,7 @@ void GoToDialog::cellYChanged(int val)
 {
     if (mSynching) return;
     mSynching++;
-    ui->worldY->setValue(val * 300 + ui->posY->value());
+    ui->worldY->setValue(val * mWorld->cellSize() + ui->posY->value());
     mSynching--;
 }
 
@@ -118,7 +121,7 @@ void GoToDialog::posXChanged(int val)
 {
     if (mSynching) return;
     mSynching++;
-    ui->worldX->setValue(ui->cellX->value() * 300 + val);
+    ui->worldX->setValue(ui->cellX->value() * mWorld->cellSize() + val);
     mSynching--;
 }
 
@@ -126,6 +129,6 @@ void GoToDialog::posYChanged(int val)
 {
     if (mSynching) return;
     mSynching++;
-    ui->worldY->setValue(ui->cellY->value() * 300 + val);
+    ui->worldY->setValue(ui->cellY->value() * mWorld->cellSize() + val);
     mSynching--;
 }

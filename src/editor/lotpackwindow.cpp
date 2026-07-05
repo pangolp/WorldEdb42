@@ -257,14 +257,15 @@ void IsoWorldGridItem::paint(QPainter *painter,
     QPen gridPen();
     painter->setPen(gridPen);
 
+    const int cellSz = mWorld->isoConstants.SQUARES_PER_CELL;
     for (int y = startY; y <= endY; ++y) {
-        if (y % 300) continue;
+        if (y % cellSz) continue;
         const QPointF start = mRenderer->pixelToTileCoords(startX, (qreal)y);
         const QPointF end = mRenderer->pixelToTileCoords(endX, (qreal)y);
         painter->drawLine(start, end);
     }
     for (int x = startX; x <= endX; ++x) {
-        if (x % 300) continue;
+        if (x % cellSz) continue;
         const QPointF start = mRenderer->pixelToTileCoords(x, (qreal)startY);
         const QPointF end = mRenderer->pixelToTileCoords(x, (qreal)endY);
         painter->drawLine(start, end);

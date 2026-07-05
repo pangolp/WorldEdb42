@@ -205,7 +205,7 @@ bool BuildingRoomDefecatorFill::shouldVisit(int x1, int y1, int x2, int y2)
 
 bool BuildingRoomDefecatorFill::push(int x, int y)
 {
-    if (stack.size() < 300 * 300) {
+    if (stack.size() < mDefecator->mFloor->width() * mDefecator->mFloor->height()) {
         stack += mDefecator->mFloor->height() * x + y;
         return true;
     } else {
