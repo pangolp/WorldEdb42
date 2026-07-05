@@ -14,7 +14,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Xml OpenGL OpenGLWidgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Xml OpenGL OpenGLWidgets
+             OPTIONAL_COMPONENTS Core5Compat)
 
 # Platform-specific output layout
 if(WIN32)
