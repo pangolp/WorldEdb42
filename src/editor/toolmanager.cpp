@@ -1,6 +1,6 @@
 /*
  * toolmanager.cpp
- * Copyright 2009-2010, Thorbjørn Lindeijer <thorbjorn@lindeijer.nl>
+ * Copyright 2009-2010, ThorbjÃ¸rn Lindeijer <thorbjorn@lindeijer.nl>
  *
  * This file is part of Tiled.
  *

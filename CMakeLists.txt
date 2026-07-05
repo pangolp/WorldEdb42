@@ -27,6 +27,11 @@ else()
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 endif()
 
+# Treat all source files as UTF-8 on MSVC (suppresses C4828 for non-ASCII chars in comments)
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 # Definitions shared across all sub-targets
 add_compile_definitions(ZOMBOID WORLDED)
 
