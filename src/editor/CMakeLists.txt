@@ -241,6 +241,7 @@ if(WIN32)
     if(WINDEPLOYQT_EXECUTABLE)
         add_custom_command(TARGET PZWorldEd POST_BUILD
             COMMAND "${WINDEPLOYQT_EXECUTABLE}"
+                --no-compiler-runtime
                 "$<TARGET_FILE:PZWorldEd>"
             COMMENT "Running windeployqt to deploy Qt runtime..."
         )
