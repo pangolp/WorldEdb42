@@ -275,7 +275,7 @@ MapImageManager::ImageData MapImageManager::generateMapImage(const QString &mapF
     }
 #endif
     IMAGE_WIDTH = Preferences::instance()->thumbWidth();
-    if (IMAGE_WIDTH == NULL) IMAGE_WIDTH = 512;
+    if (IMAGE_WIDTH == 0) IMAGE_WIDTH = 512;
     QFileInfo fileInfo(mapFilePath);
     QFileInfo imageInfo = imageFileInfo(mapFilePath);
     QFileInfo imageDataInfo = imageDataFileInfo(imageInfo);
