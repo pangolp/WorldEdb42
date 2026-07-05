@@ -65,11 +65,10 @@ int main(int argc, char *argv[])
         QString fileName = QDir::currentPath() + QLatin1String("/theme/") + prefs->themes();
         Logger::instance().log(QLatin1String("MainWindow - Theme : %1").arg(fileName), QLatin1String("INFO"));
         QFile file(fileName);
-        file.open(QIODevice::ReadOnly | QIODevice::Text);
-        QTextStream in(&file);
-        QString stylesheet = in.readAll();
-
-        a.setStyleSheet(stylesheet);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&file);
+            a.setStyleSheet(in.readAll());
+        }
     }
     // Unofficial Fork - end
 

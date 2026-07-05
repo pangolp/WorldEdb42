@@ -253,10 +253,9 @@ void PreferencesDialog::accept()
     QString fileName = QDir::currentPath() + QLatin1String("/theme/") + prefs->themes();
 
     QFile file(fileName);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QTextStream in(&file);
-    QString stylesheet = in.readAll();
-
-   qApp->setStyleSheet(stylesheet);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        qApp->setStyleSheet(in.readAll());
+    }
 
 }
