@@ -592,7 +592,7 @@ Don't check this if you are low on disk space or system memory.</string>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget_2">
+       <widget class="QWidget" name="layoutWidget_8">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -699,7 +699,7 @@ Don't check this if you are low on disk space or system memory.</string>
        <property name="title">
         <string>Highway Trail</string>
        </property>
-       <widget class="QWidget" name="layoutWidget_4">
+       <widget class="QWidget" name="layoutWidget_9">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -799,7 +799,7 @@ Don't check this if you are low on disk space or system memory.</string>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget_5">
+       <widget class="QWidget" name="layoutWidget_10">
         <property name="geometry">
          <rect>
           <x>10</x>
