@@ -19,6 +19,7 @@
 
 #include "cellscene.h"
 #include "preferences.h"
+#include "world.h"
 #include "zoomable.h"
 
 #include "maprenderer.h"
