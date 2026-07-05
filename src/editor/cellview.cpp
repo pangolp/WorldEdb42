@@ -19,6 +19,7 @@
 
 #include "cellscene.h"
 #include "preferences.h"
+#include "world.h"
 #include "zoomable.h"
 
 #include "maprenderer.h"
@@ -55,5 +56,6 @@ QRectF CellView::sceneRectForMiniMap() const
 {
     if (!scene() || !scene()->renderer())
         return QRectF();
-    return scene()->renderer()->boundingRect(QRect(0, 0, 300, 300));
+    const int cs = scene()->world()->cellSize();
+    return scene()->renderer()->boundingRect(QRect(0, 0, cs, cs));
 }

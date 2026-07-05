@@ -879,8 +879,8 @@ void IsoMetaGrid::Create(const QString &directory)
                     //Q_UNUSED(e) Q_UNUSED(x) Q_UNUSED(y)
 #if 0
                     def->objects += new MetaObject(e,
-                                                   x + wX * 300 - def->x,
-                                                   y + wY * 300 - def->y,
+                                                   x + wX * IsoChunkMap::CellSize - def->x,
+                                                   y + wY * IsoChunkMap::CellSize - def->y,
                                                    def);
 #endif
                 }

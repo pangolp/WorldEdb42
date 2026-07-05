@@ -624,7 +624,7 @@ void MapReaderPrivate::decodeCSVLayerData(TileLayer *tileLayer, const QString &t
 #elif 0
     QString trimText = text.trimmed();
     static QVector<int> tiles;
-    tiles.reserve(300*300*2);
+    tiles.reserve(tileLayer->width() * tileLayer->height() * 2);
     tiles.clear();
     QString_split(QLatin1Char(','), Qt::KeepEmptyParts, Qt::CaseSensitive, trimText, tiles);
 

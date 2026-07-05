@@ -100,7 +100,7 @@ void FloorTileGrid::replace(int index, const QString &tile)
         mCells.erase(it);
         mCount--;
     }
-    if (mCells.size() > 300 * 300 / 3)
+    if (mCells.size() > mWidth * mHeight / 3)
         swapToVector();
 }
 

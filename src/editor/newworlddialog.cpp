@@ -37,5 +37,5 @@ QSize NewWorldDialog::worldSize() const
 
 int NewWorldDialog::cellSize() const
 {
-    return ui->cellSizeSpinBox->value();
+    return ui->cellSizeComboBox->currentIndex() == 0 ? 300 : 256;
 }

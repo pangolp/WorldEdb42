@@ -101,45 +101,33 @@
      </property>
      <layout class="QGridLayout" name="gridLayoutCellSize">
       <item row="0" column="0">
-       <widget class="QLabel" name="labelCellSizeNote">
-        <property name="text">
-         <string>Build 41: 300 × 300    Build 42: 256 × 256</string>
-        </property>
-        <property name="styleSheet">
-         <string>color: gray;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
        <widget class="QLabel" name="labelCellSize">
         <property name="text">
          <string>Cell size:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="cellSizeSpinBox">
+      <item row="0" column="1">
+       <widget class="QComboBox" name="cellSizeComboBox">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>160</width>
           <height>0</height>
          </size>
         </property>
-        <property name="suffix">
-         <string> tiles</string>
-        </property>
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>9999</number>
-        </property>
-        <property name="value">
-         <number>300</number>
-        </property>
+        <item>
+         <property name="text">
+          <string>300 tiles (Build 41)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>256 tiles (Build 42)</string>
+         </property>
+        </item>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="0" column="2">
        <spacer name="horizontalSpacer2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
