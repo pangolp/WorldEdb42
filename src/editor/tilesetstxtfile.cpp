@@ -8,7 +8,7 @@
 
 #include <QFileInfo>
 #include <QSet>
-#include <QScopedPointer>
+#include <memory>
 
 TilesetsTxtFile::TilesetsTxtFile()
 {
@@ -87,7 +87,7 @@ bool TilesetsTxtFile::read(const QString &path)
                 mError = tr("Duplicate tileset '%1'.").arg(tilesetName);
                 return false;
             }
-            QScopedPointer<Tileset> tileset(new Tileset());
+            std::unique_ptr<Tileset> tileset(new Tileset());
             tileset->mName = tilesetName;
             tileset->mFile = tilesetFileName;
 
@@ -130,7 +130,7 @@ bool TilesetsTxtFile::read(const QString &path)
             }
 
             tilesetNameSet += tileset->mName;
-            mTilesets += tileset.take();
+            mTilesets += tileset.release();
         } else {
             mError = tr("Unknown block name '%1'.\n%2")
                     .arg(block.name)

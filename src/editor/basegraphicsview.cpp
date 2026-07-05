@@ -249,11 +249,11 @@ void BaseGraphicsView::mouseMoveEvent(QMouseEvent *event)
     if (mHandScrolling) {
         QScrollBar *hBar = horizontalScrollBar();
         QScrollBar *vBar = verticalScrollBar();
-        const QPoint d = event->globalPos() - mLastMouseGlobalPos;
+        const QPoint d = event->globalPosition().toPoint() - mLastMouseGlobalPos;
         hBar->setValue(hBar->value() + (isRightToLeft() ? d.x() : -d.x()));
         vBar->setValue(vBar->value() - d.y());
 
-        mLastMouseGlobalPos = event->globalPos();
+        mLastMouseGlobalPos = event->globalPosition().toPoint();
         return;
     }
 
@@ -297,7 +297,7 @@ void BaseGraphicsView::mouseMoveEvent(QMouseEvent *event)
 
     mScene->setEventView(this);
     QGraphicsView::mouseMoveEvent(event);
-    mLastMouseGlobalPos = event->globalPos();
+    mLastMouseGlobalPos = event->globalPosition().toPoint();
     mLastMouseScenePos = mapToScene(viewport()->mapFromGlobal(mLastMouseGlobalPos));
 }
 

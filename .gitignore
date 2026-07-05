@@ -52,6 +52,7 @@ ui_*.h
 
 # Distribution / logs
 build.log
+ci_log.txt
 dist64/
 dist32/
 

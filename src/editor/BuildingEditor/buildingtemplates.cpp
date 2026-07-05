@@ -677,7 +677,7 @@ QStringList BuildingTemplate::mTileNames;
 BuildingTemplate::BuildingTemplate() :
     mTiles(TileCount)
 {
-    Q_ASSERT(TileCount == Building::TileCount);
+    Q_ASSERT(static_cast<int>(TileCount) == static_cast<int>(Building::TileCount));
 }
 
 BuildingTemplate::BuildingTemplate(BuildingTemplate *other)
