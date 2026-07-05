@@ -23,6 +23,7 @@ jobs:
             ninja-build \
             qt6-base-dev \
             libqt6opengl6-dev \
+            libqt6core5compat6-dev \
             libgl-dev
 
       - name: Configure
@@ -40,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Qt6
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@v3
         with:
           version: '6.5.3'
           host: windows
