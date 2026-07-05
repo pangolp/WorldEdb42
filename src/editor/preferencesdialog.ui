@@ -312,7 +312,7 @@ Don't check this if you are low on disk space or system memory.</string>
        <property name="title">
         <string>Interface</string>
        </property>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QWidget" name="layoutWidget_2">
         <property name="geometry">
          <rect>
           <x>11</x>
@@ -354,7 +354,7 @@ Don't check this if you are low on disk space or system memory.</string>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QWidget" name="layoutWidget_3">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -412,7 +412,7 @@ Don't check this if you are low on disk space or system memory.</string>
          <string>Show 256x256 Grid</string>
         </property>
        </widget>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QWidget" name="layoutWidget_4">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -492,7 +492,7 @@ Don't check this if you are low on disk space or system memory.</string>
        <property name="title">
         <string>Highway Primary/Secondary/Tertiary</string>
        </property>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QWidget" name="layoutWidget_5">
         <property name="geometry">
          <rect>
           <x>10</x>
