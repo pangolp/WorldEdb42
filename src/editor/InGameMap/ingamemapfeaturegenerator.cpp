@@ -391,10 +391,11 @@ bool InGameMapFeatureGenerator::processObjectGroupNew(WorldCell* cell, ObjectGro
         x += offset.x();
         y += offset.y();
 
+        const int cs = cell->world()->cellSize();
         if (objectGroup->name().contains(QLatin1String("RoomDefs"))) {
-            if (x < 0 || y < 0 || x + w > 300 || y + h > 300) {
-                x = qBound(0, x, 300);
-                y = qBound(0, y, 300);
+            if (x < 0 || y < 0 || x + w > cs || y + h > cs) {
+                x = qBound(0, x, cs);
+                y = qBound(0, y, cs);
                 mError = tr("A RoomDef in cell %1,%2 overlaps cell boundaries.\nNear x,y=%3,%4")
                     .arg(cell->x()).arg(cell->y()).arg(x).arg(y);
                 return false;
@@ -635,6 +636,7 @@ bool InGameMapFeatureGenerator::processObjectGroup(WorldCell *cell, ObjectGroup 
     if (level != 0)
         return true;
 
+    const int cs = cell->world()->cellSize();
     QRect bounds;
     QVector<QRect> rects;
 
@@ -664,9 +666,9 @@ bool InGameMapFeatureGenerator::processObjectGroup(WorldCell *cell, ObjectGroup 
         x += offset.x();
         y += offset.y();
 
-        if (x < 0 || y < 0 || x + w > 300 || y + h > 300) {
-            x = qBound(0, x, 300);
-            y = qBound(0, y, 300);
+        if (x < 0 || y < 0 || x + w > cs || y + h > cs) {
+            x = qBound(0, x, cs);
+            y = qBound(0, y, cs);
             mError = tr("A RoomDef in cell %1,%2 overlaps cell boundaries.\nNear x,y=%3,%4")
                     .arg(cell->x()).arg(cell->y()).arg(x).arg(y);
             return false;
@@ -726,6 +728,7 @@ bool InGameMapFeatureGenerator::processObjectGroup(WorldCell *cell, MapInfo *map
         return true;
     }
 
+    const int cs = cell->world()->cellSize();
     for (const MapObject *mapObject : objectGroup->objects()) {
 #if 0
         if (mapObject->name().isEmpty() || mapObject->type().isEmpty())
@@ -752,9 +755,9 @@ bool InGameMapFeatureGenerator::processObjectGroup(WorldCell *cell, MapInfo *map
         x += offset.x();
         y += offset.y();
 
-        if (x < 0 || y < 0 || x + w > 300 || y + h > 300) {
-            x = qBound(0, x, 300);
-            y = qBound(0, y, 300);
+        if (x < 0 || y < 0 || x + w > cs || y + h > cs) {
+            x = qBound(0, x, cs);
+            y = qBound(0, y, cs);
             mError = tr("A RoomDef in cell %1,%2 overlaps cell boundaries.\nNear x,y=%3,%4")
                     .arg(cell->x()).arg(cell->y()).arg(x).arg(y);
             return false;
@@ -1002,7 +1005,7 @@ static void douglas_peucker(std::vector<DPPoint> &geom, size_t start, size_t n, 
     }
 }
 
-static void simplifyPolygon(ClipperLib::Path& nodes)
+static void simplifyPolygon(ClipperLib::Path& nodes, int cellSize)
 {
     // Simplification of the polygon using Ramer-Douglas-Peucker algorithm
     std::vector<DPPoint> points;
@@ -1014,7 +1017,7 @@ static void simplifyPolygon(ClipperLib::Path& nodes)
         bool necessary = i == 0 || i == nodes.size() - 1;
 
         // Keep points on cell borders
-        if (node.X == 0 || node.X == 300 || node.Y == 0 || node.Y == 300)
+        if (node.X == 0 || node.X == cellSize || node.Y == 0 || node.Y == cellSize)
             necessary = true;
 
         if (i - lastNecessary >= DI)
@@ -1158,12 +1161,13 @@ bool InGameMapFeatureGenerator::doWater(WorldCell *cell, MapInfo *mapInfo)
         }
     }
 
+    const int cs = cell->world()->cellSize();
     for (pzPolygon *poly : allPolygons) {
         if (poly->outer.empty()) continue;
         InGameMapFeature* feature = new InGameMapFeature(&cell->inGameMap());
         feature->properties().set(QStringLiteral("water"), QStringLiteral("river"));
         ClipperLib::Path simple = poly->outer;
-        simplifyPolygon(simple);
+        simplifyPolygon(simple, cs);
         if (simple.size() < 3) continue;
         feature->mGeometry.mType = QStringLiteral("Polygon");
         InGameMapCoordinates coords;
@@ -1175,7 +1179,7 @@ bool InGameMapFeatureGenerator::doWater(WorldCell *cell, MapInfo *mapInfo)
         if (poly->inner.empty() == false) {
             for (auto& hole : poly->inner) {
                 simple = hole;
-                simplifyPolygon(simple);
+                simplifyPolygon(simple, cs);
                 if (simple.size() < 3) continue;
                 coords.clear();
                 for (auto& point : simple) {
@@ -1192,7 +1196,6 @@ bool InGameMapFeatureGenerator::doWater(WorldCell *cell, MapInfo *mapInfo)
     return true;
 }
 
-#include <array>
 #include <iostream>
 #include <preferences.h>
 
@@ -1238,10 +1241,11 @@ bool InGameMapFeatureGenerator::doTrees(WorldCell *cell, MapInfo *mapInfo)
         return false;
     };
 
-    std::array<bool, 300 * 300> trees;
+    const int cs = cell->world()->cellSize();
+    std::vector<bool> trees(cs * cs, false);
     for (int y = 0; y < bounds.height(); y++) {
         for (int x = 0; x < bounds.width(); x++) {
-            trees[x + y * 300] = isTreeAt(x, y);
+            trees[x + y * cs] = isTreeAt(x, y);
         }
     }
 
@@ -1251,7 +1255,7 @@ bool InGameMapFeatureGenerator::doTrees(WorldCell *cell, MapInfo *mapInfo)
             for (int x = _x - 4; x < _x + 4; x++) {
                 if (x == _x && y == _y)
                     continue;
-                if (bounds.contains(x, y) && trees[x + y * 300]) {
+                if (bounds.contains(x, y) && trees[x + y * cs]) {
                     box |= { x, y, 1, 1 };
                 }
             }
@@ -1265,7 +1269,7 @@ bool InGameMapFeatureGenerator::doTrees(WorldCell *cell, MapInfo *mapInfo)
 
     for (int y = 0; y < bounds.height(); y++) {
         for (int x = 0; x < bounds.width(); x++) {
-            if (trees[x + y * 300]) {
+            if (trees[x + y * cs]) {
                 QRect box = getTreesNear(x, y);
                 if (box.size() != QSize(1, 1)) {
                     path.clear();
@@ -1309,7 +1313,7 @@ bool InGameMapFeatureGenerator::doTrees(WorldCell *cell, MapInfo *mapInfo)
 
     for (pzPolygon *poly : allPolygons) {
         ClipperLib::Path simple = poly->outer;
-        simplifyPolygon(simple);
+        simplifyPolygon(simple, cs);
         if (simple.size() < 3) {
             continue;
         }
@@ -1342,7 +1346,7 @@ bool InGameMapFeatureGenerator::doTrees(WorldCell *cell, MapInfo *mapInfo)
 #if 1
             for (auto& hole : poly->inner) {
                 simple = hole;
-                simplifyPolygon(simple);
+                simplifyPolygon(simple, cs);
                 if (simple.size() < 3) {
                     continue;
                 }
@@ -1383,7 +1387,7 @@ bool InGameMapFeatureGenerator::doTrees(WorldCell *cell, MapInfo *mapInfo)
     return true;
 }
 
-static void simplifyPolygonRoad(ClipperLib::Path& nodes, int simple, int minPoint)
+static void simplifyPolygonRoad(ClipperLib::Path& nodes, int simple, int minPoint, int cellSize)
 {
     // Simplification of the polygon using Ramer-Douglas-Peucker algorithm
     std::vector<DPPoint> points;
@@ -1395,7 +1399,7 @@ static void simplifyPolygonRoad(ClipperLib::Path& nodes, int simple, int minPoin
         bool necessary = i == 0 || i == nodes.size() - 1;
 
         // Keep points on cell borders
-        if (node.X == 0 || node.X == 300 || node.Y == 0 || node.Y == 300)
+        if (node.X == 0 || node.X == cellSize || node.Y == 0 || node.Y == cellSize)
             necessary = true;
 
         if (i - lastNecessary >= DI)
@@ -1530,7 +1534,7 @@ bool InGameMapFeatureGenerator::doRoadMain(WorldCell* cell, MapInfo* mapInfo)
         InGameMapFeature* feature = new InGameMapFeature(&cell->inGameMap());
         feature->properties().set(QStringLiteral("highway"), QStringLiteral("primary"));
         ClipperLib::Path simple = poly->outer;
-        simplifyPolygonRoad(simple, threshold, size);
+        simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
         if (simple.size() < 4) continue;
         feature->mGeometry.mType = QStringLiteral("Polygon");
         InGameMapCoordinates coords;
@@ -1542,7 +1546,7 @@ bool InGameMapFeatureGenerator::doRoadMain(WorldCell* cell, MapInfo* mapInfo)
         if (poly->inner.empty() == false) {
             for (auto& hole : poly->inner) {
                 simple = hole;
-                simplifyPolygonRoad(simple, threshold, size);
+                simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
                 if (simple.size() < 4) continue;
                 coords.clear();
                 for (auto& point : simple) {
@@ -1652,7 +1656,7 @@ bool InGameMapFeatureGenerator::doRoadSecondary(WorldCell* cell, MapInfo* mapInf
         InGameMapFeature* feature = new InGameMapFeature(&cell->inGameMap());
         feature->properties().set(QStringLiteral("highway"), QStringLiteral("secondary"));
         ClipperLib::Path simple = poly->outer;
-        simplifyPolygonRoad(simple, threshold, size);
+        simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
         if (simple.size() < 4) continue;
         feature->mGeometry.mType = QStringLiteral("Polygon");
         InGameMapCoordinates coords;
@@ -1664,7 +1668,7 @@ bool InGameMapFeatureGenerator::doRoadSecondary(WorldCell* cell, MapInfo* mapInf
         if (poly->inner.empty() == false) {
             for (auto& hole : poly->inner) {
                 simple = hole;
-                simplifyPolygonRoad(simple, threshold, size);
+                simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
                 if (simple.size() < 4) continue;
                 coords.clear();
                 for (auto& point : simple) {
@@ -1776,7 +1780,7 @@ bool InGameMapFeatureGenerator::doRoadTertiary(WorldCell* cell, MapInfo* mapInfo
         InGameMapFeature* feature = new InGameMapFeature(&cell->inGameMap());
         feature->properties().set(QStringLiteral("highway"), QStringLiteral("tertiary"));
         ClipperLib::Path simple = poly->outer;
-        simplifyPolygonRoad(simple, threshold, size);
+        simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
         if (simple.size() < 4) continue;
         feature->mGeometry.mType = QStringLiteral("Polygon");
         InGameMapCoordinates coords;
@@ -1788,7 +1792,7 @@ bool InGameMapFeatureGenerator::doRoadTertiary(WorldCell* cell, MapInfo* mapInfo
         if (poly->inner.empty() == false) {
             for (auto& hole : poly->inner) {
                 simple = hole;
-                simplifyPolygonRoad(simple, threshold, size);
+                simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
                 if (simple.size() < 4) continue;
                 coords.clear();
                 for (auto& point : simple) {
@@ -1901,7 +1905,7 @@ bool InGameMapFeatureGenerator::doRoadTrail(WorldCell* cell, MapInfo* mapInfo)
             feature->properties().set(QStringLiteral("highway"), QStringLiteral("trail"));
             ClipperLib::Path simple = poly->outer;
 
-            simplifyPolygonRoad(simple, threshold, size);
+            simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
             if (simple.size() < 4) continue;
             feature->mGeometry.mType = QStringLiteral("Polygon");
             InGameMapCoordinates coords;
@@ -1913,7 +1917,7 @@ bool InGameMapFeatureGenerator::doRoadTrail(WorldCell* cell, MapInfo* mapInfo)
             if (poly->inner.empty() == false) {
                 for (auto& hole : poly->inner) {
                     simple = hole;
-                    simplifyPolygonRoad(simple, threshold, size);
+                    simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
                     if (simple.size() < 4) continue;
                     coords.clear();
                     for (auto& point : simple) {
@@ -2026,7 +2030,7 @@ bool InGameMapFeatureGenerator::doRailroad(WorldCell* cell, MapInfo* mapInfo)
         InGameMapFeature* feature = new InGameMapFeature(&cell->inGameMap());
         feature->properties().set(QStringLiteral("railway"), QStringLiteral("*"));
         ClipperLib::Path simple = poly->outer;
-        simplifyPolygonRoad(simple, threshold, size);
+        simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
         if (simple.size() < 4) continue;
         feature->mGeometry.mType = QStringLiteral("Polygon");
         InGameMapCoordinates coords;
