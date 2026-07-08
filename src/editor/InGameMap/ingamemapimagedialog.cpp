@@ -40,7 +40,9 @@ static QLatin1String KEY_OUTPUT_PATH("InGameMapImageDialog/OutputPath");
 
 InGameMapImageDialog::InGameMapImageDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::InGameMapImageDialog)
+    ui(new Ui::InGameMapImageDialog),
+    mRunning(false),
+    mStop(false)
 {
     ui->setupUi(this);
 
