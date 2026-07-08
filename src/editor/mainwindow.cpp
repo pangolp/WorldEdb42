@@ -263,8 +263,8 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::generateLotsAll);
     connect(ui->actionGenerateLotsSelected8x8, &QAction::triggered,
             this, &MainWindow::generateLotsSelected);
-    connect(ui->actionOverwriteSpawnMap_AllCells_256, &QAction::triggered, this, &MainWindow::overwriteSpawnMap_AllCells_256);
-    connect(ui->actionOverwriteSpawnMap_SelectedCells_256, &QAction::triggered, this, &MainWindow::overwriteSpawnMap_SelectedCells_256);
+    connect(ui->actionOverwriteSpawnMap_AllCells_256, &QAction::triggered, this, &MainWindow::overwriteSpawnMap_AllCells);
+    connect(ui->actionOverwriteSpawnMap_SelectedCells_256, &QAction::triggered, this, &MainWindow::overwriteSpawnMap_SelectedCells);
     connect(ui->actionBMPToTMXAll, &QAction::triggered,
             this, &MainWindow::BMPToTMXAll);
     connect(ui->actionBMPToTMXSelected, &QAction::triggered,
@@ -1618,7 +1618,7 @@ void MainWindow::generateLotSettingsChanged()
     updateActions();
 }
 
-static void overwriteSpawnMap256(MainWindow *mainWin, Document *doc, LotFilesManager256::GenerateMode mode)
+static void overwriteSpawnMap(MainWindow *mainWin, Document *doc, LotFilesManager256::GenerateMode mode)
 {
     if (!doc)
         return;
@@ -1634,14 +1634,14 @@ static void overwriteSpawnMap256(MainWindow *mainWin, Document *doc, LotFilesMan
     }
 }
 
-void MainWindow::overwriteSpawnMap_AllCells_256()
+void MainWindow::overwriteSpawnMap_AllCells()
 {
-    overwriteSpawnMap256(this, mCurrentDocument, LotFilesManager256::GenerateAll);
+    overwriteSpawnMap(this, mCurrentDocument, LotFilesManager256::GenerateAll);
 }
 
-void MainWindow::overwriteSpawnMap_SelectedCells_256()
+void MainWindow::overwriteSpawnMap_SelectedCells()
 {
-    overwriteSpawnMap256(this, mCurrentDocument, LotFilesManager256::GenerateSelected);
+    overwriteSpawnMap(this, mCurrentDocument, LotFilesManager256::GenerateSelected);
 }
 
 static void _BMPToTMX(MainWindow *mainWin, Document *doc,
