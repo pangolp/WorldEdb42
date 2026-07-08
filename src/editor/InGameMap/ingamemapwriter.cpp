@@ -115,9 +115,13 @@ public:
 
         w.writeStartElement(QLatin1String("geometry"));
         w.writeAttribute(QLatin1String("type"), feature->mGeometry.mType);
-        for (auto& coords : feature->mGeometry.mCoordinates) {
+        // Only write the outer ring (first coordinates). PZ's worldmap parser
+        // reallocates its point buffer in a way that corrupts data when a feature
+        // has more than one <coordinates> element (holes), causing IndexOutOfBoundsException.
+        if (!feature->mGeometry.mCoordinates.isEmpty()) {
+            const auto& outerRing = feature->mGeometry.mCoordinates.first();
             w.writeStartElement(QLatin1String("coordinates"));
-            for (auto& point : coords) {
+            for (auto& point : outerRing) {
                 w.writeStartElement(QLatin1String("point"));
                 w.writeAttribute(QLatin1String("x"), QString::number(point.x));
                 w.writeAttribute(QLatin1String("y"), QString::number(point.y));
