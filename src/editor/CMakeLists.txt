@@ -161,7 +161,7 @@ set_property(DIRECTORY PROPERTY AUTOUIC_SEARCH_PATHS
     ${CMAKE_CURRENT_SOURCE_DIR}/navigation
 )
 
-qt_add_executable(PZWorldEd ${EDITOR_SOURCES})
+qt_add_executable(PZWorldEd WIN32 ${EDITOR_SOURCES})
 
 target_include_directories(PZWorldEd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
