@@ -237,25 +237,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuGenerate_Lots">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="visible">
-      <bool>false</bool>
-     </property>
-     <property name="toolTip">
-      <string>Generate map for B30+ version of Project Zomboid with 300x300 cells</string>
-     </property>
-     <property name="title">
-      <string>Generate Lots 10x10 (B30+ map)</string>
-     </property>
-     <property name="toolTipsVisible">
-      <bool>true</bool>
-     </property>
-     <addaction name="actionGenerateLotsAll"/>
-     <addaction name="actionGenerateLotsSelected"/>
-    </widget>
     <widget class="QMenu" name="menuBMP_To_TMX">
      <property name="title">
       <string>BMP To TMX</string>
@@ -271,27 +252,15 @@
      <addaction name="actionTMXToBMPSelected"/>
     </widget>
     <widget class="QMenu" name="menuGenerate_Lots_8x8">
-     <property name="font">
-      <font>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="toolTip">
-      <string>Generate map for B42+ version of Project Zomboid with 256x256 cells</string>
-     </property>
      <property name="title">
-      <string>Generate Lots 8x8 (B42+ map)</string>
-     </property>
-     <property name="toolTipsVisible">
-      <bool>true</bool>
+      <string>Generate Lots</string>
      </property>
      <addaction name="actionGenerateLotsAll8x8"/>
      <addaction name="actionGenerateLotsSelected8x8"/>
     </widget>
     <widget class="QMenu" name="menuOverwriteSpawnMap256">
      <property name="title">
-      <string>Overwrite SpawnMap 8x8</string>
+      <string>Overwrite SpawnMap</string>
      </property>
      <addaction name="actionOverwriteSpawnMap_AllCells_256"/>
      <addaction name="actionOverwriteSpawnMap_SelectedCells_256"/>
@@ -303,7 +272,6 @@
     <addaction name="separator"/>
     <addaction name="menuBMP_To_TMX"/>
     <addaction name="menuTMX_To_BMP"/>
-    <addaction name="menuGenerate_Lots"/>
     <addaction name="menuGenerate_Lots_8x8"/>
     <addaction name="menuOverwriteSpawnMap256"/>
     <addaction name="actionLUAObjectDump"/>
@@ -426,9 +394,7 @@
     <addaction name="actionGenerateInGameMapBuildingFeatures"/>
     <addaction name="separator"/>
     <addaction name="actionReadInGameMapFeaturesXML"/>
-    <addaction name="actionWriteInGameMapFeaturesXML"/>
     <addaction name="actionWriteInGameMapFeaturesXML_256"/>
-    <addaction name="actionOverwriteInGameMapFeaturesXML"/>
     <addaction name="actionOverwriteInGameMapFeaturesXML_256"/>
     <addaction name="actionCreateWorldImage"/>
     <addaction name="actionCreateImagePyramid"/>
@@ -761,16 +727,6 @@
     <string>Show Object Names</string>
    </property>
   </action>
-  <action name="actionGenerateLotsAll">
-   <property name="text">
-    <string>All Cells...</string>
-   </property>
-  </action>
-  <action name="actionGenerateLotsSelected">
-   <property name="text">
-    <string>Selected Cells Only...</string>
-   </property>
-  </action>
   <action name="actionRemoveRoad">
    <property name="icon">
     <iconset resource="editor.qrc">
@@ -917,24 +873,6 @@
     <string>Show Other Worlds</string>
    </property>
   </action>
-  <action name="actionWriteInGameMapFeaturesXML">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="editor.qrc">
-     <normaloff>:/images/16x16/document-save-as.png</normaloff>:/images/16x16/document-save-as.png</iconset>
-   </property>
-   <property name="text">
-    <string>Write Features XML 10x10...</string>
-   </property>
-   <property name="toolTip">
-    <string>Don't forget to do this!</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
   <action name="actionGenerateInGameMapBuildingFeatures">
    <property name="text">
     <string>Generate Building Features</string>
@@ -1026,20 +964,6 @@
     <string>Split Object Polygon</string>
    </property>
   </action>
-  <action name="actionOverwriteInGameMapFeaturesXML">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Overwrite 300</string>
-   </property>
-   <property name="toolTip">
-    <string>Overwrite 300</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
   <action name="actionCreateWorldImage">
    <property name="text">
     <string>Create World Image...</string>
@@ -1061,7 +985,7 @@
      <normaloff>:/images/16x16/document-save-as.png</normaloff>:/images/16x16/document-save-as.png</iconset>
    </property>
    <property name="text">
-    <string>Write Features XML 8x8...</string>
+    <string>Write Features XML...</string>
    </property>
    <property name="toolTip">
     <string>Don't forget to do this!</string>

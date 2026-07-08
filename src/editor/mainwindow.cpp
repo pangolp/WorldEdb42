@@ -259,16 +259,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionSaveAs, &QAction::triggered, this, &MainWindow::saveFileAs);
     connect(ui->actionClose, &QAction::triggered, this, &MainWindow::closeFile);
     connect(ui->actionCloseAll, &QAction::triggered, this, &MainWindow::closeAllFiles);
-    connect(ui->actionGenerateLotsAll, &QAction::triggered,
-            this, &MainWindow::generateLotsAll);
-    connect(ui->actionGenerateLotsSelected, &QAction::triggered,
-            this, &MainWindow::generateLotsSelected);
     connect(ui->actionGenerateLotsAll8x8, &QAction::triggered,
-            this, &MainWindow::generateLotsAll8x8);
+            this, &MainWindow::generateLotsAll);
     connect(ui->actionGenerateLotsSelected8x8, &QAction::triggered,
-            this, &MainWindow::generateLotsSelected8x8);
-    connect(ui->actionOverwriteSpawnMap_AllCells_256, &QAction::triggered, this, &MainWindow::overwriteSpawnMap_AllCells_256);
-    connect(ui->actionOverwriteSpawnMap_SelectedCells_256, &QAction::triggered, this, &MainWindow::overwriteSpawnMap_SelectedCells_256);
+            this, &MainWindow::generateLotsSelected);
+    connect(ui->actionOverwriteSpawnMap_AllCells_256, &QAction::triggered, this, &MainWindow::overwriteSpawnMap_AllCells);
+    connect(ui->actionOverwriteSpawnMap_SelectedCells_256, &QAction::triggered, this, &MainWindow::overwriteSpawnMap_SelectedCells);
     connect(ui->actionBMPToTMXAll, &QAction::triggered,
             this, &MainWindow::BMPToTMXAll);
     connect(ui->actionBMPToTMXSelected, &QAction::triggered,
@@ -326,10 +322,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionAddInGameMapHole, &QAction::triggered, this, &MainWindow::addInGameMapHole);
     connect(ui->actionRemoveInGameMapHole, &QAction::triggered, this, &MainWindow::removeInGameMapHole);
     connect(ui->actionReadInGameMapFeaturesXML, &QAction::triggered, this, &MainWindow::readInGameMapFeaturesXML);
-    connect(ui->actionWriteInGameMapFeaturesXML, &QAction::triggered, this, &MainWindow::writeInGameMapFeaturesXML_300);
-    connect(ui->actionWriteInGameMapFeaturesXML_256, &QAction::triggered, this, &MainWindow::writeInGameMapFeaturesXML_256);
-    connect(ui->actionOverwriteInGameMapFeaturesXML, &QAction::triggered, this, &MainWindow::overwriteInGameMapFeaturesXML);
-    connect(ui->actionOverwriteInGameMapFeaturesXML_256, &QAction::triggered, this, &MainWindow::overwriteInGameMapFeaturesXML_256);
+    connect(ui->actionWriteInGameMapFeaturesXML_256, &QAction::triggered, this, &MainWindow::writeInGameMapFeaturesXML);
+    connect(ui->actionOverwriteInGameMapFeaturesXML_256, &QAction::triggered, this, &MainWindow::overwriteInGameMapFeaturesXML);
     connect(ui->actionCreateWorldImage, &QAction::triggered, this, &MainWindow::createInGameMapImage);
     connect(ui->actionCreateImagePyramid, &QAction::triggered, this, &MainWindow::creaeInGameMapImagePyramid);
 
@@ -1578,38 +1572,7 @@ static void writeLuaFiles(MainWindow *mainWin, World *world)
     }
 }
 
-static void generateLots(MainWindow *mainWin, Document *doc,
-                         LotFilesManager::GenerateMode mode)
-{
-    if (!doc)
-        return;
-    WorldDocument *worldDoc = doc->asWorldDocument();
-    if (!worldDoc)
-        return;
-    GenerateLotsDialog dialog(worldDoc, mainWin);
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-    if (!LotFilesManager::instance()->generateWorld(worldDoc, mode)) {
-        QMessageBox::warning(mainWin, mainWin->tr("Lot Generation Failed!"),
-                             LotFilesManager::instance()->errorString());
-    }
-    writeLuaFiles(mainWin, worldDoc->world());
-#if 0
-    TileMetaInfoMgr::deleteInstance();
-#endif
-}
-
-void MainWindow::generateLotsAll()
-{
-    generateLots(this, mCurrentDocument, LotFilesManager::GenerateAll);
-}
-
-void MainWindow::generateLotsSelected()
-{
-    generateLots(this, mCurrentDocument, LotFilesManager::GenerateSelected);
-}
-
-static void generateLots8x8(MainWindow *mainWin, Document *doc, LotFilesManager256::GenerateMode mode)
+static void generateLots(MainWindow *mainWin, Document *doc, LotFilesManager256::GenerateMode mode)
 {
     if (!doc)
         return;
@@ -1628,14 +1591,14 @@ static void generateLots8x8(MainWindow *mainWin, Document *doc, LotFilesManager2
 #endif
 }
 
-void MainWindow::generateLotsAll8x8()
+void MainWindow::generateLotsAll()
 {
-    generateLots8x8(this, mCurrentDocument, LotFilesManager256::GenerateAll);
+    generateLots(this, mCurrentDocument, LotFilesManager256::GenerateAll);
 }
 
-void MainWindow::generateLotsSelected8x8()
+void MainWindow::generateLotsSelected()
 {
-    generateLots8x8(this, mCurrentDocument, LotFilesManager256::GenerateSelected);
+    generateLots(this, mCurrentDocument, LotFilesManager256::GenerateSelected);
 }
 
 void MainWindow::generateLotSettingsChanged()
@@ -1655,7 +1618,7 @@ void MainWindow::generateLotSettingsChanged()
     updateActions();
 }
 
-static void overwriteSpawnMap256(MainWindow *mainWin, Document *doc, LotFilesManager256::GenerateMode mode)
+static void overwriteSpawnMap(MainWindow *mainWin, Document *doc, LotFilesManager256::GenerateMode mode)
 {
     if (!doc)
         return;
@@ -1671,14 +1634,14 @@ static void overwriteSpawnMap256(MainWindow *mainWin, Document *doc, LotFilesMan
     }
 }
 
-void MainWindow::overwriteSpawnMap_AllCells_256()
+void MainWindow::overwriteSpawnMap_AllCells()
 {
-    overwriteSpawnMap256(this, mCurrentDocument, LotFilesManager256::GenerateAll);
+    overwriteSpawnMap(this, mCurrentDocument, LotFilesManager256::GenerateAll);
 }
 
-void MainWindow::overwriteSpawnMap_SelectedCells_256()
+void MainWindow::overwriteSpawnMap_SelectedCells()
 {
-    overwriteSpawnMap256(this, mCurrentDocument, LotFilesManager256::GenerateSelected);
+    overwriteSpawnMap(this, mCurrentDocument, LotFilesManager256::GenerateSelected);
 }
 
 static void _BMPToTMX(MainWindow *mainWin, Document *doc,
@@ -2560,27 +2523,7 @@ void MainWindow::clearMapOnly()
     undoStack->endMacro();
 }
 
-void MainWindow::writeInGameMapFeaturesXML_300()
-{
-    writeInGameMapFeaturesXML(false);
-}
-
-void MainWindow::writeInGameMapFeaturesXML_256()
-{
-    writeInGameMapFeaturesXML(true);
-}
-
-void MainWindow::overwriteInGameMapFeaturesXML_300()
-{
-    overwriteInGameMapFeaturesXML(false);
-}
-
-void MainWindow::overwriteInGameMapFeaturesXML_256()
-{
-    overwriteInGameMapFeaturesXML(true);
-}
-
-void MainWindow::writeInGameMapFeaturesXML(bool b256)
+void MainWindow::writeInGameMapFeaturesXML()
 {
     WorldDocument *worldDoc = currentWorldDocument();
 
@@ -2659,7 +2602,7 @@ void MainWindow::writeInGameMapFeaturesXML(bool b256)
     }
 }
 
-void MainWindow::overwriteInGameMapFeaturesXML(bool b256)
+void MainWindow::overwriteInGameMapFeaturesXML()
 {
     WorldDocument *worldDoc = currentWorldDocument();
 
@@ -2837,17 +2780,11 @@ void MainWindow::updateActions()
     CellDocument *cellDoc = hasDoc ? doc->asCellDocument() : 0;
     WorldDocument *worldDoc = hasDoc ? doc->asWorldDocument() : 0;
     World *world = worldDoc ? worldDoc->world() : (cellDoc ? cellDoc->world() : nullptr);
-    bool bEnable10x10 = false;
 
     ui->actionSave->setEnabled(hasDoc);
     ui->actionSaveAs->setEnabled(hasDoc);
     ui->actionClose->setEnabled(hasDoc);
     ui->actionCloseAll->setEnabled(hasDoc);
-
-    ui->menuGenerate_Lots->setEnabled(worldDoc != 0 && bEnable10x10);
-    ui->actionGenerateLotsAll->setEnabled(worldDoc != 0);
-    ui->actionGenerateLotsSelected->setEnabled(worldDoc &&
-                                               worldDoc->selectedCellCount());
 
     ui->menuGenerate_Lots_8x8->setEnabled(worldDoc != 0);
     ui->actionGenerateLotsAll8x8->setEnabled(worldDoc != 0);
@@ -2918,7 +2855,6 @@ void MainWindow::updateActions()
     ui->actionRemoveInGameMapHole->setEnabled(canRemoveInGameMapHole());
     ui->actionConvertToPolygon->setEnabled(canConvertToInGameMapPolygon());
     ui->actionReadInGameMapFeaturesXML->setEnabled(hasDoc);
-    ui->actionWriteInGameMapFeaturesXML->setEnabled(hasDoc && bEnable10x10);
     ui->actionWriteInGameMapFeaturesXML_256->setEnabled(hasDoc);
     QString featuresXML = Preferences::instance()->worldMapXMLFile();
     bool hasReadFeaturesXML = false;
@@ -2931,9 +2867,7 @@ void MainWindow::updateActions()
             }
         }
     }
-    ui->actionOverwriteInGameMapFeaturesXML->setText(tr("Overwrite %1 10x10").arg(featuresXML.isEmpty() ? tr("features.xml") : QFileInfo(featuresXML).fileName()));
-    ui->actionOverwriteInGameMapFeaturesXML->setEnabled(hasDoc && hasReadFeaturesXML && bEnable10x10);
-    ui->actionOverwriteInGameMapFeaturesXML_256->setText(tr("Overwrite %1 8x8").arg(featuresXML.isEmpty() ? tr("features.xml") : QFileInfo(featuresXML).fileName()));
+    ui->actionOverwriteInGameMapFeaturesXML_256->setText(tr("Overwrite %1").arg(featuresXML.isEmpty() ? tr("features.xml") : QFileInfo(featuresXML).fileName()));
     ui->actionOverwriteInGameMapFeaturesXML_256->setEnabled(hasDoc && hasReadFeaturesXML);
     ui->actionCreateWorldImage->setEnabled(hasDoc);
     ui->actionGenerate_BiomeMap->setEnabled(hasDoc);

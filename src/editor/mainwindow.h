@@ -105,12 +105,10 @@ public slots:
 
     void generateLotsAll();
     void generateLotsSelected();
-    void generateLotsAll8x8();
-    void generateLotsSelected8x8();
     void generateLotSettingsChanged();
 
-    void overwriteSpawnMap_AllCells_256();
-    void overwriteSpawnMap_SelectedCells_256();
+    void overwriteSpawnMap_AllCells();
+    void overwriteSpawnMap_SelectedCells();
 
     void BMPToTMXAll();
     void BMPToTMXSelected();
@@ -153,10 +151,8 @@ public slots:
     void removeInGameMapHole();
     void removeInGameMapPoint();
     void readInGameMapFeaturesXML();
-    void writeInGameMapFeaturesXML_300();
-    void writeInGameMapFeaturesXML_256();
-    void overwriteInGameMapFeaturesXML_300();
-    void overwriteInGameMapFeaturesXML_256();
+    void writeInGameMapFeaturesXML();
+    void overwriteInGameMapFeaturesXML();
     void createInGameMapImage();
     void creaeInGameMapImagePyramid();
 
@@ -201,8 +197,6 @@ private:
     bool canAddInGameMapHole();
     bool canRemoveInGameMapHole();
     bool canConvertToInGameMapPolygon();
-    void writeInGameMapFeaturesXML(bool b256);
-    void overwriteInGameMapFeaturesXML(bool b256);
 
     struct ViewHint
     {
