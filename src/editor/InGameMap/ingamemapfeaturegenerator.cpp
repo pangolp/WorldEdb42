@@ -1570,9 +1570,6 @@ bool InGameMapFeatureGenerator::doRoadSecondary(WorldCell* cell, MapInfo* mapInf
         if (feature->properties().contains(QStringLiteral("highway"), QStringLiteral("secondary"))) {
             mWorldDoc->removeInGameMapFeature(cell, feature->index());
         }
-        if (feature->properties().contains(QStringLiteral("natural"), QStringLiteral("forest"))) {
-            mWorldDoc->removeInGameMapFeature(cell, feature->index());
-        }
     }
 
     Preferences* prefs = Preferences::instance();
@@ -1690,9 +1687,6 @@ bool InGameMapFeatureGenerator::doRoadTertiary(WorldCell* cell, MapInfo* mapInfo
     for (int i = features.size() - 1; i >= 0; i--) {
         auto* feature = features[i];
         if (feature->properties().contains(QStringLiteral("highway"), QStringLiteral("tertiary"))) {
-            mWorldDoc->removeInGameMapFeature(cell, feature->index());
-        }
-        if (feature->properties().contains(QStringLiteral("natural"), QStringLiteral("forest"))) {
             mWorldDoc->removeInGameMapFeature(cell, feature->index());
         }
     }
@@ -1814,9 +1808,6 @@ bool InGameMapFeatureGenerator::doRoadTrail(WorldCell* cell, MapInfo* mapInfo)
     for (int i = features.size() - 1; i >= 0; i--) {
         auto* feature = features[i];
         if (feature->properties().contains(QStringLiteral("highway"), QStringLiteral("trail"))) {
-            mWorldDoc->removeInGameMapFeature(cell, feature->index());
-        }
-        if (feature->properties().contains(QStringLiteral("natural"), QStringLiteral("forest"))) {
             mWorldDoc->removeInGameMapFeature(cell, feature->index());
         }
     }
@@ -1943,9 +1934,6 @@ bool InGameMapFeatureGenerator::doRailroad(WorldCell* cell, MapInfo* mapInfo)
     for (int i = features.size() - 1; i >= 0; i--) {
         auto* feature = features[i];
         if (feature->properties().contains(QStringLiteral("railway"), QStringLiteral("*"))) {
-            mWorldDoc->removeInGameMapFeature(cell, feature->index());
-        }
-        if (feature->properties().contains(QStringLiteral("natural"), QStringLiteral("forest"))) {
             mWorldDoc->removeInGameMapFeature(cell, feature->index());
         }
     }
