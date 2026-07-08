@@ -36,6 +36,7 @@ public:
     World *readWorld(const QString &fileName);
 
     QString errorString() const;
+    bool cellSizeExplicit() const;
 
 private:
     friend class WorldReaderPrivate;

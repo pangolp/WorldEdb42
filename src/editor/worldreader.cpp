@@ -34,8 +34,8 @@ class WorldReaderPrivate
 public:
     WorldReaderPrivate()
         : mWorld(0)
+        , mCellSizeExplicit(false)
     {
-
     }
 
     bool openFile(QFile *file)
@@ -62,6 +62,8 @@ public:
                     .arg(xml.errorString());
         }
     }
+
+    bool cellSizeExplicit() const { return mCellSizeExplicit; }
 
     World *readWorld(QIODevice *device, const QString &path)
     {
@@ -96,6 +98,7 @@ private:
             int cs = atts.value(QLatin1String("cellSize")).toString().toInt();
             if (cs > 0)
                 mWorld->setCellSize(cs);
+            mCellSizeExplicit = true;
         }
 
         while (xml.readNextStartElement()) {
@@ -742,6 +745,7 @@ private:
     QString mPath;
     World *mWorld;
     QString mError;
+    bool mCellSizeExplicit;
     QXmlStreamReader xml;
 };
 
@@ -774,4 +778,9 @@ World *WorldReader::readWorld(const QString &fileName)
 QString WorldReader::errorString() const
 {
     return d->errorString();
+}
+
+bool WorldReader::cellSizeExplicit() const
+{
+    return d->cellSizeExplicit();
 }
