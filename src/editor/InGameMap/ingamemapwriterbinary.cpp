@@ -57,6 +57,7 @@ public:
         mMapDir = QDir(absDirPath);
         mWorld = world;
         mExcludeForest = excludeForest;
+        mStringTable.clear();
 
         QDataStream writer(device);
         writer.setByteOrder(QDataStream::LittleEndian);
