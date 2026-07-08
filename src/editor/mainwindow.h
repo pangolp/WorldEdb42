@@ -103,8 +103,8 @@ public slots:
 
     void updateWindowTitle();
 
-    void generateLotsAll8x8();
-    void generateLotsSelected8x8();
+    void generateLotsAll();
+    void generateLotsSelected();
     void generateLotSettingsChanged();
 
     void overwriteSpawnMap_AllCells_256();
@@ -151,8 +151,8 @@ public slots:
     void removeInGameMapHole();
     void removeInGameMapPoint();
     void readInGameMapFeaturesXML();
-    void writeInGameMapFeaturesXML_256();
-    void overwriteInGameMapFeaturesXML_256();
+    void writeInGameMapFeaturesXML();
+    void overwriteInGameMapFeaturesXML();
     void createInGameMapImage();
     void creaeInGameMapImagePyramid();
 
@@ -197,8 +197,6 @@ private:
     bool canAddInGameMapHole();
     bool canRemoveInGameMapHole();
     bool canConvertToInGameMapPolygon();
-    void writeInGameMapFeaturesXML(bool b256);
-    void overwriteInGameMapFeaturesXML(bool b256);
 
     struct ViewHint
     {
