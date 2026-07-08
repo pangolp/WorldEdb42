@@ -103,8 +103,6 @@ public slots:
 
     void updateWindowTitle();
 
-    void generateLotsAll();
-    void generateLotsSelected();
     void generateLotsAll8x8();
     void generateLotsSelected8x8();
     void generateLotSettingsChanged();
@@ -153,9 +151,7 @@ public slots:
     void removeInGameMapHole();
     void removeInGameMapPoint();
     void readInGameMapFeaturesXML();
-    void writeInGameMapFeaturesXML_300();
     void writeInGameMapFeaturesXML_256();
-    void overwriteInGameMapFeaturesXML_300();
     void overwriteInGameMapFeaturesXML_256();
     void createInGameMapImage();
     void creaeInGameMapImagePyramid();
