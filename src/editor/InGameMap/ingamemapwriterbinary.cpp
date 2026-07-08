@@ -241,11 +241,6 @@ bool InGameMapWriterBinary::writeWorld(World *world, const QString &filePath)
     return true;
 }
 
-bool InGameMapWriterBinary::writeWorld(World *world, const QString &filePath, bool b256)
-{
-    Q_UNUSED(b256)
-    return writeWorld(world, filePath);
-}
 
 void InGameMapWriterBinary::writeWorld(World *world, QIODevice *device, const QString &absDirPath)
 {

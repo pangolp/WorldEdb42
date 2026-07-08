@@ -32,7 +32,6 @@ public:
     ~InGameMapWriterBinary();
 
     bool writeWorld(World *world, const QString &filePath);
-    bool writeWorld(World *world, const QString &filePath, bool b256);
     void writeWorld(World *world, QIODevice *device, const QString &absDirPath);
 
     QString errorString() const;

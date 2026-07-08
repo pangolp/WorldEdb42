@@ -2637,7 +2637,7 @@ void MainWindow::writeInGameMapFeaturesXML(bool b256)
     }
 
     InGameMapWriterBinary writerBinary;
-    if (!writerBinary.writeWorld(worldDoc->world(), fileName + QStringLiteral(".bin"), b256)) {
+    if (!writerBinary.writeWorld(worldDoc->world(), fileName + QStringLiteral(".bin"))) {
         qWarning("Failed to write InGameMap Binary.");
         return;
     }
@@ -2657,7 +2657,7 @@ void MainWindow::overwriteInGameMapFeaturesXML(bool b256)
     }
 
     InGameMapWriterBinary writerBinary;
-    if (!writerBinary.writeWorld(worldDoc->world(), fileName + QStringLiteral(".bin"), b256)) {
+    if (!writerBinary.writeWorld(worldDoc->world(), fileName + QStringLiteral(".bin"))) {
         qWarning("Failed to write InGameMap Binary.");
         return;
     }
