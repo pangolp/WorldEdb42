@@ -47,10 +47,11 @@ public:
         return true;
     }
 
-    void writeWorld(World *world, QIODevice *device, const QString &absDirPath)
+    void writeWorld(World *world, QIODevice *device, const QString &absDirPath, bool excludeForest = false)
     {
         mMapDir = QDir(absDirPath);
         mWorld = world;
+        mExcludeForest = excludeForest;
 
         QXmlStreamWriter writer(device);
         writer.setAutoFormatting(true);
@@ -81,7 +82,16 @@ public:
 
     void writeCell(QXmlStreamWriter &w, WorldCell *cell)
     {
-        if (cell->inGameMap().features().isEmpty())
+        auto hasWritableFeature = [&]() {
+            for (auto* feature : qAsConst(cell->inGameMap().mFeatures)) {
+                if (mExcludeForest && feature->mProperties.contains(QStringLiteral("natural"), QStringLiteral("forest")))
+                    continue;
+                return true;
+            }
+            return false;
+        };
+
+        if (!hasWritableFeature())
             return;
 
         const QPoint worldOrigin = cell->world()->getGenerateLotsSettings().worldOrigin;
@@ -91,6 +101,8 @@ public:
         w.writeAttribute(QLatin1String("y"), QString::number(worldOrigin.y() + cell->y()));
 
         for (auto* feature : qAsConst(cell->inGameMap().mFeatures)) {
+            if (mExcludeForest && feature->mProperties.contains(QStringLiteral("natural"), QStringLiteral("forest")))
+                continue;
             writeFeature(w, feature);
         }
 
@@ -130,6 +142,7 @@ public:
     World *mWorld;
     QString mError;
     QDir mMapDir;
+    bool mExcludeForest = false;
 };
 
 /////
@@ -144,13 +157,13 @@ InGameMapWriter::~InGameMapWriter()
     delete d;
 }
 
-bool InGameMapWriter::writeWorld(World *world, const QString &filePath)
+bool InGameMapWriter::writeWorld(World *world, const QString &filePath, bool excludeForest)
 {
     QTemporaryFile tempFile;
     if (!d->openFile(&tempFile))
         return false;
 
-    writeWorld(world, &tempFile, QFileInfo(filePath).absolutePath());
+    writeWorld(world, &tempFile, QFileInfo(filePath).absolutePath(), excludeForest);
 
     if (tempFile.error() != QFile::NoError) {
         d->mError = tempFile.errorString();
@@ -200,9 +213,9 @@ bool InGameMapWriter::writeWorld(World *world, const QString &filePath)
     return true;
 }
 
-void InGameMapWriter::writeWorld(World *world, QIODevice *device, const QString &absDirPath)
+void InGameMapWriter::writeWorld(World *world, QIODevice *device, const QString &absDirPath, bool excludeForest)
 {
-    d->writeWorld(world, device, absDirPath);
+    d->writeWorld(world, device, absDirPath, excludeForest);
 }
 
 QString InGameMapWriter::errorString() const
