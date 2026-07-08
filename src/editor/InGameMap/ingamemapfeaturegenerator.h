@@ -83,15 +83,10 @@ private:
     bool doWater(WorldCell* cell, MapInfo* mapInfo);
     bool doTrees(WorldCell* cell, MapInfo *mapInfo);
 
-    bool doRoadMain(WorldCell* cell, MapInfo* mapInfo);
-
-    bool doRoadSecondary(WorldCell* cell, MapInfo* mapInfo);
-
-    bool doRoadTertiary(WorldCell* cell, MapInfo* mapInfo);
-
-    bool doRoadTrail(WorldCell* cell, MapInfo* mapInfo);
-
-    bool doRailroad(WorldCell* cell, MapInfo* mapInfo);
+    bool doRoad(WorldCell* cell, MapInfo* mapInfo,
+                const QString& tilesetName, const QVector<int>& tileIds,
+                const QString& propKey, const QString& propValue,
+                int threshold, int size, bool removeForest = false);
 private:
     WorldDocument *mWorldDoc;
     QString mError;
