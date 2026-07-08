@@ -1933,7 +1933,7 @@ bool InGameMapFeatureGenerator::doRailroad(WorldCell* cell, MapInfo* mapInfo)
     auto& features = cell->inGameMap().features();
     for (int i = features.size() - 1; i >= 0; i--) {
         auto* feature = features[i];
-        if (feature->properties().contains(QStringLiteral("railway"), QStringLiteral("*"))) {
+        if (feature->properties().contains(QStringLiteral("railway"), QStringLiteral("rail"))) {
             mWorldDoc->removeInGameMapFeature(cell, feature->index());
         }
     }
@@ -2016,7 +2016,7 @@ bool InGameMapFeatureGenerator::doRailroad(WorldCell* cell, MapInfo* mapInfo)
 
     for (pzPolygon* poly : allPolygons) {
         InGameMapFeature* feature = new InGameMapFeature(&cell->inGameMap());
-        feature->properties().set(QStringLiteral("railway"), QStringLiteral("*"));
+        feature->properties().set(QStringLiteral("railway"), QStringLiteral("rail"));
         ClipperLib::Path simple = poly->outer;
         simplifyPolygonRoad(simple, threshold, size, cell->world()->cellSize());
         if (simple.size() < 4) continue;
