@@ -31,8 +31,8 @@ public:
     InGameMapWriterBinary();
     ~InGameMapWriterBinary();
 
-    bool writeWorld(World *world, const QString &filePath);
-    void writeWorld(World *world, QIODevice *device, const QString &absDirPath);
+    bool writeWorld(World *world, const QString &filePath, bool excludeForest = false);
+    void writeWorld(World *world, QIODevice *device, const QString &absDirPath, bool excludeForest = false);
 
     QString errorString() const;
 

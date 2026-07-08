@@ -2649,6 +2649,14 @@ void MainWindow::writeInGameMapFeaturesXML(bool b256)
         qWarning("Failed to write InGameMap Binary.");
         return;
     }
+    if (forest) {
+        const QString xmlDir = QFileInfo(fileName).path();
+        const QString worldmapBinPath = xmlDir + QLatin1String("/worldmap.xml.bin");
+        if (!writerBinary.writeWorld(worldDoc->world(), worldmapBinPath, true)) {
+            qWarning("Failed to write InGameMap Binary (no-forest).");
+            return;
+        }
+    }
 }
 
 void MainWindow::overwriteInGameMapFeaturesXML(bool b256)
@@ -2677,6 +2685,14 @@ void MainWindow::overwriteInGameMapFeaturesXML(bool b256)
     if (!writerBinary.writeWorld(worldDoc->world(), fileName + QStringLiteral(".bin"))) {
         qWarning("Failed to write InGameMap Binary.");
         return;
+    }
+    if (isForestFile) {
+        const QString xmlDir = QFileInfo(fileName).path();
+        const QString worldmapBinPath = xmlDir + QLatin1String("/worldmap.xml.bin");
+        if (!writerBinary.writeWorld(worldDoc->world(), worldmapBinPath, true)) {
+            qWarning("Failed to write InGameMap Binary (no-forest).");
+            return;
+        }
     }
 }
 

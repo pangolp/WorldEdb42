@@ -30,7 +30,7 @@
 #include <QXmlStreamWriter>
 
 #define VERSION1 1
-#define VERSION_LATEST 1
+#define VERSION2 2
 
 class InGameMapWriterBinaryPrivate
 {
@@ -52,10 +52,11 @@ public:
         return true;
     }
 
-    void writeWorld(World *world, QIODevice *device, const QString &absDirPath)
+    void writeWorld(World *world, QIODevice *device, const QString &absDirPath, bool excludeForest = false)
     {
         mMapDir = QDir(absDirPath);
         mWorld = world;
+        mExcludeForest = excludeForest;
 
         QDataStream writer(device);
         writer.setByteOrder(QDataStream::LittleEndian);
@@ -67,7 +68,14 @@ public:
     {
         w << quint8('I') << quint8('G') << quint8('M') << quint8('B');
 
-        w << qint32(VERSION_LATEST);
+        // B42 requires version 2 with an explicit cellSize field equal to 256.
+        // B41 uses version 1 without that field.
+        if (world->cellSize() == 256) {
+            w << qint32(VERSION2);
+            w << qint32(world->cellSize()); // = 256, required by PZ B42 parser
+        } else {
+            w << qint32(VERSION1);
+        }
 
         w << qint32(world->width());
         w << qint32(world->height());
@@ -80,6 +88,16 @@ public:
                 writeCell(w, cell);
             }
         }
+    }
+
+    bool hasWritableFeature(WorldCell *cell) const
+    {
+        for (auto* feature : qAsConst(cell->inGameMap().mFeatures)) {
+            if (mExcludeForest && feature->mProperties.contains(QStringLiteral("natural"), QStringLiteral("forest")))
+                continue;
+            return true;
+        }
+        return false;
     }
 
     void writeStringTable(QDataStream &w, World *world)
@@ -98,6 +116,8 @@ public:
             for (int x = 0; x < world->width(); x++) {
                 WorldCell *cell = world->cellAt(x, y);
                 for (auto* feature : qAsConst(cell->inGameMap().mFeatures)) {
+                    if (mExcludeForest && feature->mProperties.contains(QStringLiteral("natural"), QStringLiteral("forest")))
+                        continue;
                     addString(feature->mGeometry.mType);
                     for (auto& property : feature->mProperties) {
                         addString(property.mKey);
@@ -115,7 +135,7 @@ public:
 
     void writeCell(QDataStream &w, WorldCell *cell)
     {
-        if (cell->inGameMap().features().isEmpty()) {
+        if (!hasWritableFeature(cell)) {
             w << qint32(-1);
             return;
         }
@@ -124,9 +144,17 @@ public:
         w << qint32(worldOrigin.x() + cell->x());
         w << qint32(worldOrigin.y() + cell->y());
 
-        w << qint32(cell->inGameMap().mFeatures.size());
+        int featureCount = 0;
+        for (auto* feature : qAsConst(cell->inGameMap().mFeatures)) {
+            if (mExcludeForest && feature->mProperties.contains(QStringLiteral("natural"), QStringLiteral("forest")))
+                continue;
+            featureCount++;
+        }
+        w << qint32(featureCount);
 
         for (auto* feature : qAsConst(cell->inGameMap().mFeatures)) {
+            if (mExcludeForest && feature->mProperties.contains(QStringLiteral("natural"), QStringLiteral("forest")))
+                continue;
             writeFeature(w, feature);
         }
     }
@@ -169,6 +197,7 @@ public:
     QString mError;
     QDir mMapDir;
     QMap<QString, int> mStringTable;
+    bool mExcludeForest = false;
 };
 
 /////
@@ -183,13 +212,13 @@ InGameMapWriterBinary::~InGameMapWriterBinary()
     delete d;
 }
 
-bool InGameMapWriterBinary::writeWorld(World *world, const QString &filePath)
+bool InGameMapWriterBinary::writeWorld(World *world, const QString &filePath, bool excludeForest)
 {
     QTemporaryFile tempFile;
     if (!d->openFile(&tempFile))
         return false;
 
-    writeWorld(world, &tempFile, QFileInfo(filePath).absolutePath());
+    writeWorld(world, &tempFile, QFileInfo(filePath).absolutePath(), excludeForest);
 
     if (tempFile.error() != QFile::NoError) {
         d->mError = tempFile.errorString();
@@ -240,9 +269,9 @@ bool InGameMapWriterBinary::writeWorld(World *world, const QString &filePath)
 }
 
 
-void InGameMapWriterBinary::writeWorld(World *world, QIODevice *device, const QString &absDirPath)
+void InGameMapWriterBinary::writeWorld(World *world, QIODevice *device, const QString &absDirPath, bool excludeForest)
 {
-    d->writeWorld(world, device, absDirPath);
+    d->writeWorld(world, device, absDirPath, excludeForest);
 }
 
 QString InGameMapWriterBinary::errorString() const
