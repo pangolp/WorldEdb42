@@ -71,8 +71,7 @@ public:
         w.writeAttribute(QLatin1String("version"), QLatin1String("1.0"));
         w.writeAttribute(QLatin1String("width"), QString::number(world->width()));
         w.writeAttribute(QLatin1String("height"), QString::number(world->height()));
-        if (world->cellSize() != 300)
-            w.writeAttribute(QLatin1String("cellSize"), QString::number(world->cellSize()));
+        w.writeAttribute(QLatin1String("cellSize"), QString::number(world->cellSize()));
 
         writeBMPToTMX(w);
         writeTMXToBMP(w);

@@ -789,6 +789,23 @@ void MainWindow::openFile()
     }
 }
 
+namespace {
+class SetCellSizeCommand : public QUndoCommand
+{
+public:
+    SetCellSizeCommand(World *world, int newSize)
+        : QUndoCommand(QCoreApplication::translate("MainWindow", "Set Cell Size"))
+        , mWorld(world), mOldSize(300), mNewSize(newSize)
+    {}
+    void redo() override { mWorld->setCellSize(mNewSize); }
+    void undo() override { mWorld->setCellSize(mOldSize); }
+private:
+    World *mWorld;
+    int mOldSize;
+    int mNewSize;
+};
+} // namespace
+
 bool MainWindow::openFile(const QString &fileName)
 {
     if (fileName.isEmpty())
@@ -812,11 +829,31 @@ bool MainWindow::openFile(const QString &fileName)
         return false;
     }
 
+    int chosenCellSize = -1;
+    if (!reader.cellSizeExplicit()) {
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle(tr("Cell Size"));
+        msgBox.setText(tr("This world file does not specify a cell size.\n"
+                          "Please choose the version it was created for:"));
+        msgBox.addButton(tr("300 tiles (Build 41)"), QMessageBox::RejectRole);
+        msgBox.addButton(tr("256 tiles (Build 42)"), QMessageBox::AcceptRole);
+        msgBox.exec();
+        chosenCellSize = (msgBox.buttonRole(msgBox.clickedButton()) == QMessageBox::AcceptRole) ? 256 : 300;
+    }
+
     DefaultsFile::oldWorld(world);
 
     docman()->addDocument(new WorldDocument(world, fileName));
     if (docman()->failedToAdd())
         return false;
+
+    if (chosenCellSize != -1) {
+        // Apply the chosen cell size via the undo stack so the document is
+        // marked modified and the value is persisted on the next save.
+        if (auto *worldDoc = qobject_cast<WorldDocument*>(docman()->currentDocument()))
+            worldDoc->undoStack()->push(new SetCellSizeCommand(world, chosenCellSize));
+    }
+
 //    setRecentFile(fileName);
     return true;
 }
