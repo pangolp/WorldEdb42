@@ -117,7 +117,7 @@ bool InGameMapFeatureGenerator::generateWorld(WorldDocument *worldDoc, InGameMap
         QMessageBox msgBox;
         msgBox.setWindowTitle(QLatin1String("Duration : ") + QString::number(duration.count()) + QLatin1String(" seconds"));
         msgBox.setText(QLatin1String("You just generated Map features.") + QLatin1Char('\n') + QLatin1String("Please do not forget to Write it to file."));
-        msgBox.isModal();
+        msgBox.setModal(true);
         msgBox.exec();
     }
 
@@ -1090,9 +1090,6 @@ bool InGameMapFeatureGenerator::doWater(WorldCell *cell, MapInfo *mapInfo)
     for (int i = features.size() - 1; i >= 0; i--) {
         auto* feature = features[i];
         if (feature->properties().containsKey(QStringLiteral("water"))) {
-            mWorldDoc->removeInGameMapFeature(cell, feature->index());
-        }
-        if (feature->properties().contains(QStringLiteral("natural"), QStringLiteral("forest"))) {
             mWorldDoc->removeInGameMapFeature(cell, feature->index());
         }
     }
