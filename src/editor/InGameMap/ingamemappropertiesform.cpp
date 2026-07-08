@@ -72,7 +72,13 @@ void InGameMapPropertiesForm::setDocument(Document *doc)
                 this, &InGameMapPropertiesForm::selectedFeaturesChanged);
     }
 
-    setFeature(nullptr); // FIXME: use single selected feature if any
+    InGameMapFeature* feature = nullptr;
+    if (mWorldDoc || mCellDoc) {
+        auto& selected = mWorldDoc ? mWorldDoc->selectedInGameMapFeatures() : mCellDoc->selectedInGameMapFeatures();
+        if (selected.size() == 1)
+            feature = selected.first();
+    }
+    setFeature(feature);
 }
 
 void InGameMapPropertiesForm::clearDocument()

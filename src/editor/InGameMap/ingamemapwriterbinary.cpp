@@ -134,23 +134,21 @@ public:
     void writeFeature(QDataStream &w, InGameMapFeature* feature)
     {
         SaveStringIndex(w, feature->mGeometry.mType);
-        
-            w << qint8(feature->mGeometry.mCoordinates.size());
-            for (auto& coords : feature->mGeometry.mCoordinates) {
-                w << qint16(coords.size());
-                for (auto& point : coords) {
 
-                    w << qint16(int(point.x));
-                    w << qint16(int(point.y));
-                }
+        w << qint8(feature->mGeometry.mCoordinates.size());
+        for (auto& coords : feature->mGeometry.mCoordinates) {
+            w << qint16(coords.size());
+            for (auto& point : coords) {
+                w << qint16(int(point.x));
+                w << qint16(int(point.y));
             }
+        }
 
-            w << qint8(feature->mProperties.size());
-            for (auto& property : feature->mProperties) {
-                SaveStringIndex(w, property.mKey);
-                SaveStringIndex(w, property.mValue);
-            }
-        
+        w << qint8(feature->mProperties.size());
+        for (auto& property : feature->mProperties) {
+            SaveStringIndex(w, property.mKey);
+            SaveStringIndex(w, property.mValue);
+        }
     }
 
     void SaveString(QDataStream& w, const QString& str)
@@ -241,11 +239,6 @@ bool InGameMapWriterBinary::writeWorld(World *world, const QString &filePath)
     return true;
 }
 
-bool InGameMapWriterBinary::writeWorld(World *world, const QString &filePath, bool b256)
-{
-    Q_UNUSED(b256)
-    return writeWorld(world, filePath);
-}
 
 void InGameMapWriterBinary::writeWorld(World *world, QIODevice *device, const QString &absDirPath)
 {
