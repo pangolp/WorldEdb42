@@ -98,7 +98,7 @@ bool InGameMapFeatureGenerator::generateWorld(WorldDocument *worldDoc, InGameMap
             QMessageBox msgBox;
             msgBox.setWindowTitle(QLatin1String("Duration : ") + QString::number(duration.count()) + QLatin1String(" seconds"));
             msgBox.setText(QLatin1String("You just generated Map features.") + QLatin1Char('\n') + QLatin1String("Please do not forget to Write it to file."));
-            msgBox.isModal();
+            msgBox.setModal(true);
             msgBox.exec();
         }
     } else {
