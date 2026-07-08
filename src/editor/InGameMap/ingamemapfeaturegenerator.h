@@ -86,7 +86,7 @@ private:
     bool doRoad(WorldCell* cell, MapInfo* mapInfo,
                 const QString& tilesetName, const QVector<int>& tileIds,
                 const QString& propKey, const QString& propValue,
-                int threshold, int size, bool removeForest = false);
+                int threshold, int size);
 private:
     WorldDocument *mWorldDoc;
     QString mError;

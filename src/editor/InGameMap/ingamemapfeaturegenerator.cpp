@@ -203,7 +203,7 @@ bool InGameMapFeatureGenerator::generateCell(WorldCell *cell)
         ok = doRoad(cell, mapInfo,
             QStringLiteral("blends_street_01"), {32, 37, 38, 39, 80, 85, 86, 87},
             QStringLiteral("highway"), QStringLiteral("primary"),
-            prefs->hsThresholdHP(), prefs->hsSizeHP(), true);
+            prefs->hsThresholdHP(), prefs->hsSizeHP());
         ok = doRoad(cell, mapInfo,
             QStringLiteral("blends_street_01"), {96, 101, 102, 103},
             QStringLiteral("highway"), QStringLiteral("secondary"),
@@ -1452,14 +1452,12 @@ static void simplifyPolygonRoad(ClipperLib::Path& nodes, int simple, int minPoin
 bool InGameMapFeatureGenerator::doRoad(WorldCell* cell, MapInfo* mapInfo,
     const QString& tilesetName, const QVector<int>& tileIds,
     const QString& propKey, const QString& propValue,
-    int threshold, int size, bool removeForest)
+    int threshold, int size)
 {
     auto& features = cell->inGameMap().features();
     for (int i = features.size() - 1; i >= 0; i--) {
         auto* feature = features[i];
         if (feature->properties().contains(propKey, propValue))
-            mWorldDoc->removeInGameMapFeature(cell, feature->index());
-        if (removeForest && feature->properties().contains(QStringLiteral("natural"), QStringLiteral("forest")))
             mWorldDoc->removeInGameMapFeature(cell, feature->index());
     }
 
